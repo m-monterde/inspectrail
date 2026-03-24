@@ -24,7 +24,7 @@ const metricUnits: Record<string, string> = {
 };
 
 export function Thresholds() {
-  const { data, loading, error } = useQuery(GET_THRESHOLDS);
+  const { data, loading, error } = useQuery<any>(GET_THRESHOLDS);
 
   if (loading) return <div className="text-slate-500">Cargando umbrales...</div>;
   if (error) return <div className="text-red-500">Error: {error.message}</div>;

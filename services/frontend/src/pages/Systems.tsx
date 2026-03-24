@@ -2,7 +2,7 @@ import { useQuery } from '@apollo/client/react';
 import { GET_INSPECTION_SYSTEMS } from '../graphql/queries';
 
 export function Systems() {
-  const { data, loading, error } = useQuery(GET_INSPECTION_SYSTEMS);
+  const { data, loading, error } = useQuery<any>(GET_INSPECTION_SYSTEMS);
 
   if (loading) return <div className="text-slate-500">Cargando sistemas...</div>;
   if (error) return <div className="text-red-500">Error: {error.message}</div>;

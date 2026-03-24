@@ -17,7 +17,7 @@ const statusColors: Record<string, string> = {
 
 export function Journeys() {
   const [page, setPage] = useState(1);
-  const { data, loading, error } = useQuery(GET_JOURNEYS, {
+  const { data, loading, error } = useQuery<any>(GET_JOURNEYS, {
     variables: { pagination: { page, pageSize: 20 } },
   });
 

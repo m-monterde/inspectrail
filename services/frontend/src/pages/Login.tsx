@@ -11,7 +11,7 @@ export function Login() {
   const navigate = useNavigate();
   const setAuth = useAuthStore((s) => s.setAuth);
 
-  const [login, { loading }] = useMutation(LOGIN, {
+  const [login, { loading }] = useMutation<any>(LOGIN, {
     onCompleted: (data) => {
       setAuth(data.login.token, data.login.user);
       navigate('/');

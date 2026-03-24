@@ -42,12 +42,12 @@ export function JourneyDetail() {
   const { id } = useParams<{ id: string }>();
   const journeyId = parseInt(id!, 10);
 
-  const { data, loading, error } = useQuery(GET_JOURNEY, { variables: { id: journeyId } });
-  const { data: sensorData, loading: sensorLoading } = useQuery(GET_SENSOR_READINGS, {
+  const { data, loading, error } = useQuery<any>(GET_JOURNEY, { variables: { id: journeyId } });
+  const { data: sensorData, loading: sensorLoading } = useQuery<any>(GET_SENSOR_READINGS, {
     variables: { journeyId },
     skip: !journeyId,
   });
-  const { data: thresholdData } = useQuery(GET_THRESHOLDS);
+  const { data: thresholdData } = useQuery<any>(GET_THRESHOLDS);
   const [mapColorBy, setMapColorBy] = useState<string>('none');
 
   if (loading) return <div className="text-slate-500">Cargando trayecto...</div>;

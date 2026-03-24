@@ -20,7 +20,7 @@ export function Alerts() {
   const filter: any = {};
   if (severityFilter) filter.severity = severityFilter;
 
-  const { data, loading, error } = useQuery(GET_ALERTS, {
+  const { data, loading, error } = useQuery<any>(GET_ALERTS, {
     variables: { filter, pagination: { page, pageSize: 20 } },
   });
 

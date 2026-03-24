@@ -26,7 +26,7 @@ const metricLabels: Record<string, string> = {
 };
 
 export function Dashboard() {
-  const { data, loading, error } = useQuery(GET_DASHBOARD_STATS, {
+  const { data, loading, error } = useQuery<any>(GET_DASHBOARD_STATS, {
     pollInterval: 30000,
   });
 
