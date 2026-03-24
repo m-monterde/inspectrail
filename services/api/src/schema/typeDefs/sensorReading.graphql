@@ -1,0 +1,24 @@
+type SensorReading {
+  time: DateTime!
+  journeyId: Int!
+  pk: Float!
+  latitude: Float
+  longitude: Float
+  speed: Float
+  accelVertical: Float
+  accelLateral: Float
+  accelLongitudinal: Float
+  leveling: Float
+  alignment: Float
+  twist: Float
+  gauge: Float
+}
+
+extend type Query {
+  sensorReadings(
+    journeyId: Int!
+    pkFrom: Float
+    pkTo: Float
+    resolution: Int
+  ): [SensorReading!]!
+}

@@ -1,0 +1,15 @@
+type InspectionSystem {
+  id: Int!
+  name: String!
+  code: String!
+  sensorsConfig: JSON
+  connectionStatus: ConnectionStatus!
+  lastSeenAt: DateTime
+  active: Boolean!
+  createdAt: DateTime!
+}
+
+extend type Query {
+  inspectionSystems(status: ConnectionStatus): [InspectionSystem!]!
+  inspectionSystem(id: Int!): InspectionSystem
+}

@@ -1,0 +1,43 @@
+scalar DateTime
+scalar JSON
+
+input Pagination {
+  page: Int = 1
+  pageSize: Int = 20
+}
+
+type PageInfo {
+  page: Int!
+  pageSize: Int!
+  totalCount: Int!
+  totalPages: Int!
+}
+
+enum Severity {
+  warning
+  alert
+  critical
+}
+
+enum JourneyStatus {
+  in_progress
+  completed
+  failed
+}
+
+enum MetricType {
+  accel_vertical
+  accel_lateral
+  accel_longitudinal
+  leveling
+  alignment
+  twist
+  gauge
+  speed
+}
+
+enum ConnectionStatus {
+  connected
+  disconnected
+  error
+}

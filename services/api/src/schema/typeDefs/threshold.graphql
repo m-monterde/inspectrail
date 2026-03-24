@@ -1,0 +1,30 @@
+type Threshold {
+  id: Int!
+  metric: MetricType!
+  warningMin: Float!
+  warningMax: Float!
+  alertMin: Float!
+  alertMax: Float!
+  criticalMin: Float!
+  criticalMax: Float!
+  active: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+input UpdateThresholdInput {
+  warningMin: Float
+  warningMax: Float
+  alertMin: Float
+  alertMax: Float
+  criticalMin: Float
+  criticalMax: Float
+}
+
+extend type Query {
+  thresholds: [Threshold!]!
+}
+
+extend type Mutation {
+  updateThreshold(id: Int!, input: UpdateThresholdInput!): Threshold!
+}

@@ -154,6 +154,78 @@ enum MetricType {
 }
 ```
 
+## Autenticación y autorización
+
+### Autenticación — JWT stateless
+
+El usuario se autentica con `login(email, password)` y recibe un token JWT firmado con HS256. Cada petición posterior incluye el token en la cabecera `Authorization: Bearer <token>`. El servidor verifica el token, extrae `userId`, `email` y `organizationId`, y los inyecta en el contexto de GraphQL.
+
+No se almacena estado de sesión en el servidor. El token expira en 24h.
+
+**Alternativas descartadas:**
+- Sesiones en servidor (requiere store compartido tipo Redis entre instancias)
+- OAuth2/OpenID Connect (sobredimensionado para una plataforma interna sin SSO)
+
+### Autorización — RBAC (Role-Based Access Control)
+
+RBAC es un modelo de autorización estándar en aplicaciones empresariales donde los permisos no se asignan directamente a usuarios, sino a **roles**, y los roles se asignan a usuarios. Esto permite gestionar el acceso de forma escalable.
+
+**Flujo:**
+```
+Usuario → tiene → Roles → tienen → Permisos
+   │                │                   │
+   Ana García       admin_org           thresholds.edit, users.manage, ...
+   Pedro Martínez   operator            journeys.view, alerts.view, ...
+```
+
+**Modelo de datos (5 tablas):**
+```
+users ──1:N──► user_roles ──N:1──► roles ──1:N──► role_permissions ──N:1──► permissions
+```
+
+**Roles del sistema:**
+
+| Rol | Descripción | Permisos |
+|-----|-------------|----------|
+| admin_org | Administrador de la organización | Todos (10 permisos) |
+| operator | Operador de campo | Solo lectura: dashboard, journeys, alerts, thresholds, systems (5 permisos) |
+
+**Permisos implementados:**
+
+| Permiso | Descripción | Quién lo tiene |
+|---------|-------------|----------------|
+| dashboard.view | Ver dashboard | admin_org, operator |
+| journeys.view | Ver trayectos y lecturas de sensores | admin_org, operator |
+| alerts.view | Ver alertas | admin_org, operator |
+| thresholds.view | Ver umbrales | admin_org, operator |
+| thresholds.edit | Modificar umbrales | admin_org |
+| systems.view | Ver sistemas de inspección | admin_org, operator |
+| systems.edit | Editar sistemas de inspección | admin_org |
+| users.view | Ver lista de usuarios | admin_org |
+| users.manage | Crear/editar/desactivar usuarios | admin_org |
+| org.configure | Configurar organización | admin_org |
+
+**Uso en el código (resolvers):**
+```typescript
+// Solo requiere estar autenticado (cualquier rol)
+const user = requireAuth(ctx.user);
+
+// Requiere permiso específico — lanza FORBIDDEN si no lo tiene
+const user = requirePermission(ctx.user, 'thresholds.edit');
+```
+
+**Justificación de RBAC frente a alternativas:**
+
+| Alternativa | Por qué no |
+|-------------|-----------|
+| Comprobar rol directamente (`if role === 'admin'`) | Rígido: añadir un rol `manager` obliga a tocar cada `if` del código |
+| ACL (Access Control Lists) | Más granular pero más complejo de gestionar; innecesario para el número de operaciones de esta plataforma |
+| ABAC (Attribute-Based Access Control) | Basado en atributos dinámicos (hora, ubicación...); sobredimensionado aquí |
+
+RBAC es el punto de equilibrio: lo suficientemente flexible para crear nuevos roles sin tocar código (solo se asignan permisos en BD), y lo suficientemente simple para que no añada complejidad innecesaria.
+
+**Multitenencia:** además de RBAC, todas las queries filtran automáticamente por `organizationId` del usuario autenticado. Un usuario de la organización A nunca puede ver datos de la organización B, independientemente de su rol.
+
 ## Comunicación con servicio de análisis
 
 El servicio de análisis (Python) notifica alertas nuevas mediante **PostgreSQL LISTEN/NOTIFY** (ADR-006). La API escucha el canal y emite las alertas como GraphQL Subscriptions:
@@ -187,6 +259,13 @@ prisma/migrations/
 Comandos:
 - `npx prisma migrate dev --name nombre` — genera y aplica migración en desarrollo
 - `npx prisma migrate deploy` — aplica migraciones pendientes en despliegue
+
+## Credenciales de demo
+
+| Usuario | Email | Contraseña | Rol |
+|---------|-------|------------|-----|
+| Admin | admin@inspectrail.demo | demo1234 | admin_org |
+| Operador | operador@inspectrail.demo | demo1234 | operator |
 
 ## Cómo ejecutar
 ```bash

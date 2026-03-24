@@ -64,6 +64,30 @@ Tren (sensores) → Ingesta (Python) → BD (PG+TimescaleDB) → Análisis (Pyth
 - GitHub Actions: ci.yml, build-and-push.yml, deploy.yml listos
 - Node.js 22 necesario (nvm use 22)
 
+## API GraphQL — Arquitectura (decidido 2026-03-24)
+Patrón **schema-first con capa de servicios** (Resolvers → Services → Prisma):
+- **Schema `.graphql`** = contrato del API (equivale a DTOs en REST)
+- **Resolvers** = delegan a services (equivale a controllers)
+- **Services** = lógica de negocio + acceso a datos vía Prisma
+- **Middleware** = auth JWT + permisos RBAC
+- No se usan DTOs explícitos (los input/type de GraphQL ya lo son)
+- No se usa capa Repository (Prisma ya es el data access layer type-safe)
+- Descartado NestJS por over-engineering para el alcance del proyecto
+- Descartado resolvers→Prisma directo por mezclar lógica con resolución
+
+```
+services/api/src/
+├── schema/typeDefs/*.graphql    ← contrato GraphQL
+├── schema/resolvers/*.ts        ← delegan a services
+├── services/*.service.ts        ← lógica de negocio
+├── middleware/{auth,permissions} ← JWT + RBAC
+├── lib/prisma.ts                ← singleton PrismaClient
+├── context.ts                   ← tipo Context
+└── index.ts                     ← entry point Apollo Server
+```
+
+Dependencias: @apollo/server, graphql, @graphql-tools/schema, @graphql-tools/load-files, @graphql-tools/merge, graphql-scalars, jsonwebtoken, graphql-ws, ws
+
 ## Siguiente paso
 Desarrollar la API GraphQL (Apollo Server + Prisma). Después frontend, después ingesta/análisis simplificados.
 

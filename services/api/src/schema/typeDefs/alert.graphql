@@ -1,0 +1,36 @@
+type Alert {
+  id: Int!
+  metric: MetricType!
+  severity: Severity!
+  pkStart: Float!
+  pkEnd: Float!
+  latStart: Float
+  lonStart: Float
+  latEnd: Float
+  lonEnd: Float
+  measuredValue: Float!
+  thresholdValue: Float!
+  deviation: Float!
+  detectedAt: DateTime!
+  metadata: JSON
+  createdAt: DateTime!
+  journey: Journey!
+}
+
+type AlertConnection {
+  items: [Alert!]!
+  pageInfo: PageInfo!
+}
+
+input AlertFilter {
+  journeyId: Int
+  severity: Severity
+  metric: MetricType
+  dateFrom: DateTime
+  dateTo: DateTime
+}
+
+extend type Query {
+  alerts(filter: AlertFilter, pagination: Pagination): AlertConnection!
+  alert(id: Int!): Alert
+}

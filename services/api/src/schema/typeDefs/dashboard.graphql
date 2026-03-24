@@ -1,0 +1,12 @@
+type DashboardStats {
+  totalSystems: Int!
+  connectedSystems: Int!
+  totalJourneys: Int!
+  activeJourneys: Int!
+  alertCounts: AlertCountBySeverity!
+  recentAlerts: [Alert!]!
+}
+
+extend type Query {
+  dashboardStats: DashboardStats!
+}

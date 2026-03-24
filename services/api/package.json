@@ -2,24 +2,42 @@
   "name": "api",
   "version": "1.0.0",
   "description": "## Tecnología - **Node.js + TypeScript** - **Apollo Server** (GraphQL) - **Prisma** (ORM type-safe para PostgreSQL) - **graphql-ws** (subscriptions para alertas en vivo) - **JWT** (autenticación stateless)",
-  "main": "index.js",
+  "type": "module",
+  "main": "dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "seed": "tsx prisma/seed.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@apollo/server": "^5.5.0",
+    "@graphql-tools/load-files": "^7.0.1",
+    "@graphql-tools/merge": "^9.1.7",
+    "@graphql-tools/schema": "^10.0.31",
     "@prisma/client": "^6.19.2",
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^25.5.0",
     "bcryptjs": "^3.0.3",
+    "graphql": "^16.13.2",
+    "graphql-scalars": "^1.25.0",
+    "graphql-tag": "^2.12.6",
+    "graphql-ws": "^6.0.7",
+    "jsonwebtoken": "^9.0.3",
     "prisma": "^6.19.2",
     "ts-node": "^10.9.2",
     "tsx": "^4.21.0",
-    "typescript": "^6.0.2"
+    "typescript": "^6.0.2",
+    "ws": "^8.20.0"
   },
   "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/ws": "^8.18.1",
     "dotenv": "^17.3.1"
   }
 }

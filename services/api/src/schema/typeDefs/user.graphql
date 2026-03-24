@@ -1,0 +1,15 @@
+type User {
+  id: Int!
+  email: String!
+  name: String!
+  phone: String
+  active: Boolean!
+  createdAt: DateTime!
+  lastLoginAt: DateTime
+  roles: [String!]!
+}
+
+extend type Query {
+  me: User!
+  users: [User!]!
+}

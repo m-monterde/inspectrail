@@ -1,0 +1,35 @@
+type Journey {
+  id: Int!
+  name: String!
+  startedAt: DateTime!
+  endedAt: DateTime
+  status: JourneyStatus!
+  metadata: JSON
+  createdAt: DateTime!
+  system: InspectionSystem!
+  alerts: [Alert!]!
+  alertCount: AlertCountBySeverity!
+}
+
+type JourneyConnection {
+  items: [Journey!]!
+  pageInfo: PageInfo!
+}
+
+type AlertCountBySeverity {
+  warning: Int!
+  alert: Int!
+  critical: Int!
+}
+
+input JourneyFilter {
+  systemId: Int
+  status: JourneyStatus
+  dateFrom: DateTime
+  dateTo: DateTime
+}
+
+extend type Query {
+  journeys(filter: JourneyFilter, pagination: Pagination): JourneyConnection!
+  journey(id: Int!): Journey
+}

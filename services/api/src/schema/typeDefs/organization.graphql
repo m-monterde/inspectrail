@@ -1,0 +1,13 @@
+type Organization {
+  id: Int!
+  name: String!
+  code: String!
+  deploymentMode: String!
+  config: JSON
+  active: Boolean!
+  createdAt: DateTime!
+}
+
+extend type Query {
+  organization: Organization!
+}
