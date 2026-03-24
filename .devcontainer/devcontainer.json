@@ -1,0 +1,26 @@
+{
+  "name": "InspectRail Platform",
+  "dockerComposeFile": "../devops/docker/docker-compose.yml",
+  "service": "api",
+  "workspaceFolder": "/workspace",
+  "forwardPorts": [3000, 5432, 8080, 8001, 8002],
+  "portsAttributes": {
+    "3000": { "label": "API GraphQL", "onAutoForward": "notify" },
+    "5432": { "label": "PostgreSQL", "onAutoForward": "silent" },
+    "8080": { "label": "Frontend", "onAutoForward": "openBrowser" },
+    "8001": { "label": "Ingesta", "onAutoForward": "silent" },
+    "8002": { "label": "Análisis", "onAutoForward": "silent" }
+  },
+  "postCreateCommand": "echo '✅ InspectRail Platform ready. Frontend: port 8080, API: port 3000'",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "prisma.prisma",
+        "graphql.vscode-graphql",
+        "ms-python.python"
+      ]
+    }
+  }
+}

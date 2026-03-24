@@ -1,0 +1,48 @@
+# ── Dependencias ──
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# ── Entorno ──
+.env
+.env.local
+.env.staging
+.env.production
+!.env.example
+
+# ── Build ──
+dist/
+build/
+.next/
+*.egg-info/
+
+# ── IDE y herramientas ──
+.idea/
+.vscode/
+.claude/
+*.swp
+*.swo
+.DS_Store
+
+# ── Confidencial ──
+retotecnico.pdf
+
+# ── Prisma ──
+services/api/prisma/generated/
+
+# ── Logs ──
+*.log
+npm-debug.log*
+
+# ── Docker volumes ──
+db_data/
+
+# ── Tests ──
+coverage/
+.pytest_cache/
+htmlcov/
+
+# ── Tiles locales (on-premise, no van al repo) ──
+services/frontend/public/tiles/*.pmtiles

@@ -1,0 +1,90 @@
+# Docker Compose — InspectRail Platform (desarrollo)
+# Uso: docker compose -f devops/docker/docker-compose.yml up
+
+services:
+  # ── Base de datos ──
+  database:
+    image: timescale/timescaledb-ha:pg16
+    container_name: inspectrail-db
+    restart: unless-stopped
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    environment:
+      POSTGRES_DB: ${DB_NAME:-inspectrail}
+      POSTGRES_USER: ${DB_USER:-inspectrail}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-inspectrail_dev}
+    volumes:
+      - db_data:/home/postgres/pgdata/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/01-init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-inspectrail}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Servicio de ingesta (Python) ──
+  ingesta:
+    build:
+      context: ../../services/ingesta
+      dockerfile: Dockerfile
+    container_name: inspectrail-ingesta
+    restart: unless-stopped
+    ports:
+      - "${INGESTA_PORT:-8001}:8001"
+    environment:
+      DATABASE_URL: postgresql://${DB_USER:-inspectrail}:${DB_PASSWORD:-inspectrail_dev}@database:5432/${DB_NAME:-inspectrail}
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+    depends_on:
+      database:
+        condition: service_healthy
+
+  # ── Servicio de análisis (Python) ──
+  analisis:
+    build:
+      context: ../../services/analisis
+      dockerfile: Dockerfile
+    container_name: inspectrail-analisis
+    restart: unless-stopped
+    ports:
+      - "${ANALISIS_PORT:-8002}:8002"
+    environment:
+      DATABASE_URL: postgresql://${DB_USER:-inspectrail}:${DB_PASSWORD:-inspectrail_dev}@database:5432/${DB_NAME:-inspectrail}
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+    depends_on:
+      database:
+        condition: service_healthy
+
+  # ── API GraphQL (Node.js) ──
+  api:
+    build:
+      context: ../../services/api
+      dockerfile: Dockerfile
+    container_name: inspectrail-api
+    restart: unless-stopped
+    ports:
+      - "${API_PORT:-3000}:3000"
+    environment:
+      DATABASE_URL: postgresql://${DB_USER:-inspectrail}:${DB_PASSWORD:-inspectrail_dev}@database:5432/${DB_NAME:-inspectrail}
+      JWT_SECRET: ${JWT_SECRET:-dev_secret_change_in_production}
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+    depends_on:
+      database:
+        condition: service_healthy
+
+  # ── Frontend (React) ──
+  frontend:
+    build:
+      context: ../../services/frontend
+      dockerfile: Dockerfile
+    container_name: inspectrail-frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-8080}:80"
+    environment:
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:3000}
+      VITE_WS_URL: ${VITE_WS_URL:-ws://localhost:3000}
+    depends_on:
+      - api
+
+volumes:
+  db_data:

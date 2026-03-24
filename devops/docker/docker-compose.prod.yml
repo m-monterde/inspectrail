@@ -1,0 +1,62 @@
+# Docker Compose — InspectRail Platform (producción SaaS)
+# Uso: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+
+services:
+  database:
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD}  # Obligatorio en producción
+
+  ingesta:
+    image: ghcr.io/m-monterde/inspectrail-ingesta:${VERSION:-latest}
+    build: !reset null
+    restart: always
+    environment:
+      ENVIRONMENT: production
+
+  analisis:
+    image: ghcr.io/m-monterde/inspectrail-analisis:${VERSION:-latest}
+    build: !reset null
+    restart: always
+    environment:
+      ENVIRONMENT: production
+
+  api:
+    image: ghcr.io/m-monterde/inspectrail-api:${VERSION:-latest}
+    build: !reset null
+    restart: always
+    environment:
+      JWT_SECRET: ${JWT_SECRET}  # Obligatorio en producción
+      ENVIRONMENT: production
+
+  frontend:
+    image: ghcr.io/m-monterde/inspectrail-frontend:${VERSION:-latest}
+    build: !reset null
+    restart: always
+    environment:
+      VITE_API_URL: ${VITE_API_URL}
+      VITE_WS_URL: ${VITE_WS_URL}
+
+  # ── Proxy inverso (solo producción) ──
+  traefik:
+    image: traefik:v3.0
+    container_name: inspectrail-proxy
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - traefik_certs:/letsencrypt
+    command:
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL}"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+
+volumes:
+  db_data:
+  traefik_certs:
