@@ -35,7 +35,7 @@ interface JourneyMapProps {
 
 const MAP_STYLE = 'https://tiles.openfreemap.org/styles/liberty';
 
-const ALL_METRICS: ColorMetric[] = ['leveling', 'alignment', 'twist', 'accelVertical', 'accelLateral', 'speed'];
+const ALL_METRICS: ColorMetric[] = ['leveling', 'alignment', 'twist', 'accelVertical', 'accelLateral'];
 
 /**
  * Downsampling por nivel de zoom.

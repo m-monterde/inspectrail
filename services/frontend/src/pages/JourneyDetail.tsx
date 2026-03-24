@@ -65,7 +65,6 @@ export function JourneyDetail() {
     { value: 'twist', label: 'Alabeo' },
     { value: 'accelVertical', label: 'Acel. Vertical' },
     { value: 'accelLateral', label: 'Acel. Lateral' },
-    { value: 'speed', label: 'Velocidad' },
   ];
 
   return (
