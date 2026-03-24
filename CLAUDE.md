@@ -59,10 +59,14 @@ Tren (sensores) → Ingesta (Python) → BD (PG+TimescaleDB) → Análisis (Pyth
 - Prisma 6 (no 7, que cambió el modelo de configuración)
 
 ## Infraestructura configurada
-- VPS Hetzner: Docker instalado, usuario deploy, firewall (22/80/443/8080), dir /opt/inspectrail
+- VPS Hetzner: 204.168.173.222, Docker 29.3.0, usuario deploy, firewall (22/80/443), dir /opt/inspectrail
+- Dominio: inspectrail.duckdns.org (DuckDNS, gratuito)
+- HTTPS: Let's Encrypt automático vía Traefik v2.11
 - GitHub: repo creado, secrets configurados (VPS_HOST, VPS_USER, VPS_SSH_KEY)
-- GitHub Actions: ci.yml, build-and-push.yml, deploy.yml listos
+- GitHub Actions: ci.yml, build-and-push.yml (api+frontend → ghcr.io), deploy.yml
+- Imágenes Docker públicas en ghcr.io/m-monterde/inspectrail-{api,frontend}
 - Node.js 22 necesario (nvm use 22)
+- **Demo live**: https://inspectrail.duckdns.org
 
 ## API GraphQL — Arquitectura (decidido 2026-03-24)
 Patrón **schema-first con capa de servicios** (Resolvers → Services → Prisma):
@@ -92,18 +96,27 @@ Dependencias: @apollo/server, graphql, @graphql-tools/schema, @graphql-tools/loa
 - Todas las queries y mutations implementadas y verificadas con curl
 - Login, dashboard, journeys, alerts, sensorReadings, thresholds, inspectionSystems
 - Auth JWT + RBAC con permisos granulares + multitenencia por organizationId
-- Pendiente: subscriptions (alertas en vivo), mutations secundarias (createUser, etc.), tests, Dockerfile
+- Dockerfile multi-stage (node:22-slim, ejecuta con tsx)
+- Pendiente: subscriptions (alertas en vivo), mutations secundarias (createUser, etc.), tests
 
-## Frontend — Estado en curso
-- React 18 + Vite + TypeScript + Tailwind CSS v4 + Apollo Client 4
-- Páginas implementadas: Login, Dashboard, Journeys, JourneyDetail, Alerts, Systems, Thresholds
-- Layout con sidebar + navegación + datos de usuario
+## Frontend — Estado completado
+- React 19 + Vite + TypeScript + Tailwind CSS v4 + Apollo Client 4
+- Páginas: Login, Dashboard, Journeys, JourneyDetail, Alerts, Systems, Thresholds
+- Gráficas de sensores con Apache ECharts (zoom/pan, líneas de umbral)
+- Mapas con MapLibre GL JS (rutas coloreadas por métrica, downsampling por zoom)
+- Dockerfile multi-stage (Vite build + Nginx Alpine)
+- Nginx como servidor con proxy /graphql → API
 - Apollo Client 4: hooks en `@apollo/client/react`, config en `@apollo/client/core`, gql en `graphql-tag`
-- Proxy de Vite: `/graphql` → `http://localhost:3000`
-- Pendiente: gráficas (ECharts), mapas (MapLibre GL JS), diseño visual
+
+## Deploy — Estado completado
+- Demo live: https://inspectrail.duckdns.org
+- 4 contenedores: database (TimescaleDB), api (Node.js), frontend (Nginx), proxy (Traefik)
+- CI/CD: push a main → build imágenes → push a ghcr.io
+- Deploy manual vía SSH + docker compose pull/up
+- Traefik v2.11 (v3.x incompatible con Docker API version negotiation en Docker 29.x)
 
 ## Siguiente paso
-Añadir gráficas de sensores (Apache ECharts) y mapas de trayectos (MapLibre GL JS) al frontend.
+Diseño visual del frontend y presentación técnica.
 
 ## Convenciones del usuario
 - Documentación siempre en castellano

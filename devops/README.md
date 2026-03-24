@@ -94,13 +94,68 @@ ssh prod "cd /app && docker compose pull && docker compose up -d"
 ssh prod "cd /app && docker compose up -d --no-deps api"  # con imagen anterior
 ```
 
+## Proxy inverso — Traefik
+
+En producción se usa **Traefik** como proxy inverso delante del frontend y la API. Es el único servicio expuesto a internet (puertos 80 y 443).
+
+### Qué es y por qué lo usamos
+
+Traefik es un proxy inverso y balanceador de carga diseñado para entornos de contenedores. Se elige frente a Nginx por estas razones:
+
+| Característica | Traefik | Nginx |
+|----------------|---------|-------|
+| Descubrimiento de servicios | Automático vía labels de Docker | Manual (config file) |
+| HTTPS (Let's Encrypt) | Integrado, automático | Requiere certbot externo |
+| Configuración | Labels en docker-compose | Archivo nginx.conf separado |
+| Recarga | Sin reinicio al añadir servicios | Requiere `nginx -s reload` |
+
+Para el modo **on-premise** (sin internet) se usaría Nginx en su lugar, ya que no hay certificados que renovar y la configuración estática es suficiente.
+
+### Cómo funciona en la demo
+
+```
+Internet → :80/:443 → Traefik (inspectrail-proxy)
+                          │
+                          ├── inspectrail.duckdns.org → Frontend (Nginx, puerto 80 interno)
+                          │                                │
+                          │                                └── /graphql → API (puerto 3000)
+                          │
+                          └── HTTP → redirect HTTPS (automático)
+```
+
+**Flujo de una petición:**
+1. El navegador solicita `https://inspectrail.duckdns.org`
+2. Traefik termina TLS (certificado Let's Encrypt renovado automáticamente)
+3. Traefik enruta al contenedor `frontend` (detectado vía labels de Docker)
+4. Nginx dentro del frontend sirve los archivos estáticos (React SPA)
+5. Las llamadas a `/graphql` las proxea Nginx internamente al contenedor `api`
+
+**Configuración:** se define enteramente con labels en `docker-compose.prod.yml`:
+```yaml
+labels:
+  - "traefik.enable=true"
+  - "traefik.http.routers.frontend.rule=Host(`inspectrail.duckdns.org`)"
+  - "traefik.http.routers.frontend.entrypoints=websecure"
+  - "traefik.http.routers.frontend.tls.certresolver=letsencrypt"
+```
+
+**Nota técnica:** se usa Traefik v2.11 porque v3.x tiene un bug de negociación de versión con Docker API 29.x (intenta conectarse con API v1.24 cuando el servidor requiere mínimo v1.40).
+
+### Demo desplegada
+
+- **URL**: https://inspectrail.duckdns.org
+- **VPS**: Hetzner 204.168.173.222
+- **Dominio**: DuckDNS (gratuito, sin API key)
+- **HTTPS**: Let's Encrypt (renovación automática cada 90 días)
+- **Credenciales**: admin@inspectrail.demo / demo1234
+
 ## Modos de despliegue
 
-### SaaS (internet)
+### SaaS (internet) — DESPLEGADO
 ```bash
 docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 ```
-- VPS (Hetzner/DigitalOcean, ~20€/mes)
+- VPS Hetzner (~20€/mes)
 - Traefik como proxy con HTTPS automático (Let's Encrypt)
 - Imágenes desde ghcr.io
 - GitHub Actions despliega vía SSH
