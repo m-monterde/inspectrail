@@ -84,11 +84,37 @@ services/frontend/
 8. **Configuración** — umbrales por métrica, gestión de usuarios (admin_org)
 9. **Login** — autenticación JWT
 
+## Rendimiento: downsampling por nivel de zoom
+
+Un trayecto ferroviario puede tener decenas de miles de lecturas de sensores. Renderizar todas como segmentos GeoJSON coloreados a cualquier nivel de zoom sería ineficiente — a zoom bajo no hay suficientes píxeles para representar esa resolución.
+
+**Solución implementada**: downsampling adaptativo en el frontend según el nivel de zoom del mapa.
+
+| Zoom | Factor | Puntos renderizados (de 10.000) | Justificación |
+|------|--------|--------------------------------|---------------|
+| 7-9 | 1/20 | ~500 | Vista general: un pixel cubre cientos de metros |
+| 10-11 | 1/8 | ~1.250 | Vista regional: empieza a distinguirse detalle |
+| 12-13 | 1/3 | ~3.333 | Vista local: se necesita más resolución |
+| 14+ | 1/1 | 10.000 | Vista de detalle: todos los puntos visibles |
+
+**Cómo funciona:**
+1. La **línea base** (trayecto completo) se renderiza siempre con todos los puntos como un solo `LineString` — es ligero porque MapLibre lo procesa como una sola geometría en GPU
+2. Los **segmentos coloreados** (uno por cada par de puntos consecutivos) se renderizan con los puntos downsampled — esto es lo costoso porque cada segmento es una feature GeoJSON independiente
+3. Al hacer zoom, el componente recalcula el factor y regenera solo los segmentos coloreados
+4. Todas las métricas de sensores se precalculan en las propiedades de cada segmento — cambiar la métrica de coloración solo cambia una expression de MapLibre que se ejecuta en GPU, sin regenerar geometría
+
+**Alternativas consideradas:**
+- **Downsampling en el backend** (query con `time_bucket` de TimescaleDB): ya está implementado como parámetro `resolution` en la API. Es la solución correcta para volúmenes mayores (>100K puntos) donde no queremos transferir todos los datos al navegador
+- **Clustering**: no aplicable porque los datos son lineales (una ruta), no puntos dispersos
+- **Vector tiles dinámicos**: sobredimensionado para el volumen actual (<100K puntos)
+
+**Resultado**: el trayecto demo de 10.000 lecturas se renderiza fluidamente a cualquier zoom, con el indicador `500 / 10.000 puntos (zoom 9)` visible en el mapa.
+
 ## Mapas base según modo de despliegue
 
 | Modo | Fuente de tiles | Coste |
 |------|----------------|-------|
-| SaaS (internet) | MapTiler (datos OpenStreetMap) | Gratis hasta 100K cargas/mes |
+| SaaS (internet) | OpenFreeMap (datos OpenStreetMap) | Gratuito, sin API key |
 | On-premise (sin internet) | Protomaps (archivo PMTiles local) | Gratuito |
 
 ## Cómo ejecutar

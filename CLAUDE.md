@@ -88,8 +88,22 @@ services/api/src/
 
 Dependencias: @apollo/server, graphql, @graphql-tools/schema, @graphql-tools/load-files, @graphql-tools/merge, graphql-scalars, jsonwebtoken, graphql-ws, ws
 
+## API GraphQL — Estado completado
+- Todas las queries y mutations implementadas y verificadas con curl
+- Login, dashboard, journeys, alerts, sensorReadings, thresholds, inspectionSystems
+- Auth JWT + RBAC con permisos granulares + multitenencia por organizationId
+- Pendiente: subscriptions (alertas en vivo), mutations secundarias (createUser, etc.), tests, Dockerfile
+
+## Frontend — Estado en curso
+- React 18 + Vite + TypeScript + Tailwind CSS v4 + Apollo Client 4
+- Páginas implementadas: Login, Dashboard, Journeys, JourneyDetail, Alerts, Systems, Thresholds
+- Layout con sidebar + navegación + datos de usuario
+- Apollo Client 4: hooks en `@apollo/client/react`, config en `@apollo/client/core`, gql en `graphql-tag`
+- Proxy de Vite: `/graphql` → `http://localhost:3000`
+- Pendiente: gráficas (ECharts), mapas (MapLibre GL JS), diseño visual
+
 ## Siguiente paso
-Desarrollar la API GraphQL (Apollo Server + Prisma). Después frontend, después ingesta/análisis simplificados.
+Añadir gráficas de sensores (Apache ECharts) y mapas de trayectos (MapLibre GL JS) al frontend.
 
 ## Convenciones del usuario
 - Documentación siempre en castellano

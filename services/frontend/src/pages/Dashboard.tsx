@@ -1,4 +1,5 @@
 import { useQuery } from '@apollo/client/react';
+import ReactECharts from 'echarts-for-react';
 import { GET_DASHBOARD_STATS } from '../graphql/queries';
 
 const severityColors = {
@@ -61,6 +62,16 @@ export function Dashboard() {
         ))}
       </div>
 
+      {/* Gráfica de alertas por severidad y métrica */}
+      <div className="grid grid-cols-2 gap-4 mb-6">
+        <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-4">
+          <AlertsBySeverityChart alerts={stats.recentAlerts} />
+        </div>
+        <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-4">
+          <AlertsByMetricChart alerts={stats.recentAlerts} />
+        </div>
+      </div>
+
       {/* Alertas recientes */}
       <div className="bg-white rounded-lg border border-slate-200 shadow-sm">
         <div className="px-4 py-3 border-b border-slate-200">
@@ -119,6 +130,56 @@ function KpiCard({ label, value, sub, className = '' }: { label: string; value: 
       {sub && <p className="text-xs text-slate-400 mt-1">{sub}</p>}
     </div>
   );
+}
+
+function AlertsBySeverityChart({ alerts }: { alerts: any[] }) {
+  const counts: Record<string, number> = { warning: 0, alert: 0, critical: 0 };
+  alerts.forEach((a: any) => { counts[a.severity] = (counts[a.severity] || 0) + 1; });
+
+  const option = {
+    title: { text: 'Alertas por severidad', textStyle: { fontSize: 13, fontWeight: 500, color: '#334155' } },
+    tooltip: { trigger: 'item' as const },
+    series: [{
+      type: 'pie',
+      radius: ['40%', '70%'],
+      data: [
+        { value: counts.warning, name: 'Warning', itemStyle: { color: '#f59e0b' } },
+        { value: counts.alert, name: 'Alert', itemStyle: { color: '#f97316' } },
+        { value: counts.critical, name: 'Critical', itemStyle: { color: '#ef4444' } },
+      ].filter(d => d.value > 0),
+      label: { fontSize: 11 },
+    }],
+  };
+
+  return <ReactECharts option={option} style={{ height: 200 }} notMerge />;
+}
+
+function AlertsByMetricChart({ alerts }: { alerts: any[] }) {
+  const counts: Record<string, number> = {};
+  alerts.forEach((a: any) => { counts[a.metric] = (counts[a.metric] || 0) + 1; });
+
+  const metrics = Object.keys(counts);
+  const values = metrics.map(m => counts[m]);
+
+  const labels: Record<string, string> = {
+    accel_vertical: 'Ac.Vert', accel_lateral: 'Ac.Lat', leveling: 'Nivel',
+    alignment: 'Alin.', twist: 'Alabeo', gauge: 'Ancho', speed: 'Vel.',
+  };
+
+  const option = {
+    title: { text: 'Alertas por metrica', textStyle: { fontSize: 13, fontWeight: 500, color: '#334155' } },
+    tooltip: { trigger: 'axis' as const },
+    grid: { left: 50, right: 16, top: 36, bottom: 28 },
+    xAxis: { type: 'category' as const, data: metrics.map(m => labels[m] || m), axisLabel: { fontSize: 10 } },
+    yAxis: { type: 'value' as const, axisLabel: { fontSize: 10 }, minInterval: 1 },
+    series: [{
+      type: 'bar',
+      data: values,
+      itemStyle: { color: '#3b82f6', borderRadius: [4, 4, 0, 0] },
+    }],
+  };
+
+  return <ReactECharts option={option} style={{ height: 200 }} notMerge />;
 }
 
 function SeverityBadge({ severity }: { severity: string }) {
