@@ -6,9 +6,11 @@ Es un reto técnico para un proceso de selección de Ingeniero Full Stack. El ob
 
 ## Estado actual
 - **Fase de diseño**: COMPLETADA. 12 ADRs documentadas en `docs/decisiones_arquitectonicas.docx`
-- **Fase de desarrollo**: EN CURSO. Base de datos completada, API pendiente
+- **Fase de desarrollo**: BD + API + Frontend + Deploy COMPLETADOS
 - **Repositorio**: github.com/m-monterde/inspectrail (privado, cuenta m-monterde)
+- **Demo live**: https://inspectrail.duckdns.org
 - **VPS**: Hetzner 204.168.173.222, usuario `deploy`, acceso SSH por clave
+- **Versión actual**: v0.1.0
 
 ## Arquitectura (5 servicios)
 ```
@@ -54,7 +56,8 @@ Tren (sensores) → Ingesta (Python) → BD (PG+TimescaleDB) → Análisis (Pyth
 ## Base de datos — Estado completado
 - Schema Prisma en `services/api/prisma/schema.prisma`
 - Migración init + migración TimescaleDB (hypertable + compresión + trigger notify)
-- Seed con datos realistas: 1 org, 2 usuarios, 2 sistemas, 4 trayectos, 500 lecturas, 8 alertas
+- Seed con rutas reales vascas: 1 org, 2 usuarios, 2 sistemas, 4 trayectos, 11.800 lecturas, 31 alertas
+- Trayecto principal Donostia→Bilbao: 10.000 puntos (32 waypoints de la vía real)
 - Credenciales demo: admin@inspectrail.demo / demo1234, operador@inspectrail.demo / demo1234
 - Prisma 6 (no 7, que cambió el modelo de configuración)
 
@@ -109,11 +112,23 @@ Dependencias: @apollo/server, graphql, @graphql-tools/schema, @graphql-tools/loa
 - Apollo Client 4: hooks en `@apollo/client/react`, config en `@apollo/client/core`, gql en `graphql-tag`
 
 ## Deploy — Estado completado
-- Demo live: https://inspectrail.duckdns.org
-- 4 contenedores: database (TimescaleDB), api (Node.js), frontend (Nginx), proxy (Traefik)
-- CI/CD: push a main → build imágenes → push a ghcr.io
-- Deploy manual vía SSH + docker compose pull/up
-- Traefik v2.11 (v3.x incompatible con Docker API version negotiation en Docker 29.x)
+- Demo live: https://inspectrail.duckdns.org (v0.1.0)
+- 4 contenedores: database (TimescaleDB), api (Node.js), frontend (Nginx), proxy (Traefik v2.11)
+- CI: push a main → lint + typecheck (API + frontend)
+- Build & Push: push tag `v*` → build imágenes → push a ghcr.io con tags semver + latest + sha
+- Deploy: automático tras build exitoso vía SSH + docker compose pull/up
+- Traefik v2.11 como proxy inverso con HTTPS automático (Let's Encrypt)
+- Traefik v3.x descartado por incompatibilidad con Docker API version negotiation en Docker 29.x
+- Dominio: inspectrail.duckdns.org (DuckDNS, gratuito)
+- Imágenes públicas en ghcr.io/m-monterde/inspectrail-{api,frontend}
+- ESLint: `no-explicit-any` desactivado hasta implementar graphql-codegen
+
+## CI/CD — Flujo de despliegue
+```
+push a main  →  CI (lint + typecheck)
+push tag v*  →  Build & Push (docker build → ghcr.io)  →  Deploy (SSH → docker compose up)
+```
+Para desplegar: `git tag -a v0.2.0 -m "descripción" && git push origin v0.2.0`
 
 ## Siguiente paso
 Diseño visual del frontend y presentación técnica.
