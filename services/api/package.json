@@ -1,0 +1,25 @@
+{
+  "name": "api",
+  "version": "1.0.0",
+  "description": "## Tecnología - **Node.js + TypeScript** - **Apollo Server** (GraphQL) - **Prisma** (ORM type-safe para PostgreSQL) - **graphql-ws** (subscriptions para alertas en vivo) - **JWT** (autenticación stateless)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@prisma/client": "^6.19.2",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node": "^25.5.0",
+    "bcryptjs": "^3.0.3",
+    "prisma": "^6.19.2",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.2"
+  },
+  "devDependencies": {
+    "dotenv": "^17.3.1"
+  }
+}

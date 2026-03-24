@@ -45,6 +45,7 @@ proyecto/
 | ADR-009 | DevOps: GitHub Actions + Docker Compose + Prometheus/Grafana/Loki |
 | ADR-010 | Demo: VPS Hetzner (principal) + GitHub Codespaces (backup) |
 | ADR-011 | Entornos: dev híbrido, tests con testcontainers, staging en mismo VPS |
+| ADR-012 | Monorepo: todo en un repo, cada servicio con su Dockerfile y tests |
 
 ## Cómo ejecutar
 

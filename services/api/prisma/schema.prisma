@@ -1,0 +1,261 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ══════════════════════════════════════════
+// ENUMS
+// ══════════════════════════════════════════
+
+enum DeploymentMode {
+  saas
+  on_premise
+}
+
+enum ConnectionStatus {
+  connected
+  disconnected
+  error
+}
+
+enum JourneyStatus {
+  in_progress
+  completed
+  failed
+}
+
+enum MetricType {
+  accel_vertical
+  accel_lateral
+  accel_longitudinal
+  leveling
+  alignment
+  twist
+  gauge
+  speed
+}
+
+enum Severity {
+  warning
+  alert
+  critical
+}
+
+// ══════════════════════════════════════════
+// TENENCIA
+// ══════════════════════════════════════════
+
+model Organization {
+  id             Int            @id @default(autoincrement())
+  name           String
+  code           String         @unique
+  deploymentMode DeploymentMode @default(saas) @map("deployment_mode")
+  config         Json?
+  active         Boolean        @default(true)
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+
+  users             User[]
+  inspectionSystems InspectionSystem[]
+  journeys          Journey[]
+  thresholds        Threshold[]
+  alerts            Alert[]
+
+  @@map("organizations")
+}
+
+// ══════════════════════════════════════════
+// AUTENTICACIÓN Y ROLES
+// ══════════════════════════════════════════
+
+model User {
+  id             Int       @id @default(autoincrement())
+  organizationId Int       @map("organization_id")
+  email          String    @unique
+  name           String
+  phone          String?
+  passwordHash   String    @map("password_hash")
+  active         Boolean   @default(true)
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+  lastLoginAt    DateTime? @map("last_login_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  userRoles    UserRole[]
+
+  @@map("users")
+}
+
+model Role {
+  id          Int     @id @default(autoincrement())
+  name        String  @unique
+  description String?
+  isSystem    Boolean @default(false) @map("is_system")
+
+  rolePermissions RolePermission[]
+  userRoles       UserRole[]
+
+  @@map("roles")
+}
+
+model Permission {
+  id          Int     @id @default(autoincrement())
+  code        String  @unique
+  description String?
+
+  rolePermissions RolePermission[]
+
+  @@map("permissions")
+}
+
+model RolePermission {
+  roleId       Int @map("role_id")
+  permissionId Int @map("permission_id")
+
+  role       Role       @relation(fields: [roleId], references: [id])
+  permission Permission @relation(fields: [permissionId], references: [id])
+
+  @@id([roleId, permissionId])
+  @@map("role_permissions")
+}
+
+model UserRole {
+  id        Int     @id @default(autoincrement())
+  userId    Int     @map("user_id")
+  roleId    Int     @map("role_id")
+  scopeType String? @map("scope_type")
+  scopeId   Int?    @map("scope_id")
+
+  user User @relation(fields: [userId], references: [id])
+  role Role @relation(fields: [roleId], references: [id])
+
+  @@map("user_roles")
+}
+
+// ══════════════════════════════════════════
+// DISPOSITIVOS Y TRAYECTOS
+// ══════════════════════════════════════════
+
+model InspectionSystem {
+  id               Int              @id @default(autoincrement())
+  organizationId   Int              @map("organization_id")
+  name             String
+  code             String           @unique
+  sensorsConfig    Json?            @map("sensors_config")
+  apiKey           String           @unique @map("api_key")
+  apiSecretHash    String           @map("api_secret_hash")
+  connectionStatus ConnectionStatus @default(disconnected) @map("connection_status")
+  lastSeenAt       DateTime?        @map("last_seen_at")
+  active           Boolean          @default(true)
+  createdAt        DateTime         @default(now()) @map("created_at")
+  updatedAt        DateTime         @updatedAt @map("updated_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  journeys     Journey[]
+
+  @@map("inspection_systems")
+}
+
+model Journey {
+  id             Int           @id @default(autoincrement())
+  organizationId Int           @map("organization_id")
+  systemId       Int           @map("system_id")
+  name           String
+  startedAt      DateTime      @map("started_at")
+  endedAt        DateTime?     @map("ended_at")
+  status         JourneyStatus @default(in_progress)
+  metadata       Json?
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
+
+  organization Organization     @relation(fields: [organizationId], references: [id])
+  system       InspectionSystem @relation(fields: [systemId], references: [id])
+  alerts       Alert[]
+
+  @@map("journeys")
+}
+
+// ══════════════════════════════════════════
+// UMBRALES
+// ══════════════════════════════════════════
+
+model Threshold {
+  id             Int        @id @default(autoincrement())
+  organizationId Int        @map("organization_id")
+  metric         MetricType
+  warningMin     Float      @map("warning_min")
+  warningMax     Float      @map("warning_max")
+  alertMin       Float      @map("alert_min")
+  alertMax       Float      @map("alert_max")
+  criticalMin    Float      @map("critical_min")
+  criticalMax    Float      @map("critical_max")
+  active         Boolean    @default(true)
+  createdAt      DateTime   @default(now()) @map("created_at")
+  updatedAt      DateTime   @updatedAt @map("updated_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+
+  @@unique([organizationId, metric])
+  @@map("thresholds")
+}
+
+// ══════════════════════════════════════════
+// ALERTAS
+// ══════════════════════════════════════════
+
+model Alert {
+  id             Int        @id @default(autoincrement())
+  organizationId Int        @map("organization_id")
+  journeyId      Int        @map("journey_id")
+  metric         MetricType
+  severity       Severity
+  pkStart        Float      @map("pk_start")
+  pkEnd          Float      @map("pk_end")
+  latStart       Float?     @map("lat_start")
+  lonStart       Float?     @map("lon_start")
+  latEnd         Float?     @map("lat_end")
+  lonEnd         Float?     @map("lon_end")
+  measuredValue  Float      @map("measured_value")
+  thresholdValue Float      @map("threshold_value")
+  deviation      Float
+  detectedAt     DateTime   @map("detected_at")
+  metadata       Json?
+  createdAt      DateTime   @default(now()) @map("created_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  journey      Journey      @relation(fields: [journeyId], references: [id])
+
+  @@index([organizationId, severity])
+  @@index([journeyId])
+  @@index([detectedAt])
+  @@map("alerts")
+}
+
+// ══════════════════════════════════════════
+// LECTURAS DE SENSORES
+// Se convierte a hypertable en migración manual post-Prisma
+// ══════════════════════════════════════════
+
+model SensorReading {
+  time              DateTime @map("time") @db.Timestamptz
+  journeyId         Int      @map("journey_id")
+  pk                Float
+  latitude          Float?
+  longitude         Float?
+  speed             Float?
+  accelVertical     Float?   @map("accel_vertical")
+  accelLateral      Float?   @map("accel_lateral")
+  accelLongitudinal Float?   @map("accel_longitudinal")
+  leveling          Float?
+  alignment         Float?
+  twist             Float?
+  gauge             Float?
+
+  @@id([time, journeyId])
+  @@index([journeyId, pk])
+  @@map("sensor_readings")
+}
