@@ -38,7 +38,7 @@ services:
 
   # ── Proxy inverso con HTTPS automático ──
   traefik:
-    image: traefik:v3.0
+    image: traefik:v2.11
     container_name: inspectrail-proxy
     restart: always
     ports:
