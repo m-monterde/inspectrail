@@ -4,6 +4,9 @@ name: Build & Push
 on:
   push:
     branches: [main]
+    paths:
+      - 'services/api/**'
+      - 'services/frontend/**'
 
 env:
   REGISTRY: ghcr.io
@@ -15,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        service: [ingesta, analisis, api, frontend]
+        service: [api, frontend]
     permissions:
       contents: read
       packages: write

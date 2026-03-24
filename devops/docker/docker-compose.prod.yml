@@ -1,43 +1,42 @@
-# Docker Compose — InspectRail Platform (producción SaaS)
+# Docker Compose — InspectRail Platform (producción demo)
 # Uso: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 
 services:
   database:
     restart: always
+    ports: !reset
+      - "127.0.0.1:5432:5432"
     environment:
-      POSTGRES_PASSWORD: ${DB_PASSWORD}  # Obligatorio en producción
-
-  ingesta:
-    image: ghcr.io/m-monterde/inspectrail-ingesta:${VERSION:-latest}
-    build: !reset null
-    restart: always
-    environment:
-      ENVIRONMENT: production
-
-  analisis:
-    image: ghcr.io/m-monterde/inspectrail-analisis:${VERSION:-latest}
-    build: !reset null
-    restart: always
-    environment:
-      ENVIRONMENT: production
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
 
   api:
     image: ghcr.io/m-monterde/inspectrail-api:${VERSION:-latest}
     build: !reset null
     restart: always
+    ports: !reset
+      - "127.0.0.1:3000:3000"
     environment:
-      JWT_SECRET: ${JWT_SECRET}  # Obligatorio en producción
+      JWT_SECRET: ${JWT_SECRET}
       ENVIRONMENT: production
 
   frontend:
     image: ghcr.io/m-monterde/inspectrail-frontend:${VERSION:-latest}
     build: !reset null
     restart: always
-    environment:
-      VITE_API_URL: ${VITE_API_URL}
-      VITE_WS_URL: ${VITE_WS_URL}
+    ports: !reset []
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.rule=Host(`inspectrail.duckdns.org`)"
+      - "traefik.http.routers.frontend.entrypoints=websecure"
+      - "traefik.http.routers.frontend.tls.certresolver=letsencrypt"
+      - "traefik.http.services.frontend.loadbalancer.server.port=80"
+      # Redirect HTTP → HTTPS
+      - "traefik.http.routers.frontend-http.rule=Host(`inspectrail.duckdns.org`)"
+      - "traefik.http.routers.frontend-http.entrypoints=web"
+      - "traefik.http.routers.frontend-http.middlewares=https-redirect"
+      - "traefik.http.middlewares.https-redirect.redirectscheme.scheme=https"
 
-  # ── Proxy inverso (solo producción) ──
+  # ── Proxy inverso con HTTPS automático ──
   traefik:
     image: traefik:v3.0
     container_name: inspectrail-proxy
@@ -54,7 +53,7 @@ services:
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
       - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
-      - "--certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL}"
+      - "--certificatesresolvers.letsencrypt.acme.email=mariomontom@gmail.com"
       - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
 
 volumes:
