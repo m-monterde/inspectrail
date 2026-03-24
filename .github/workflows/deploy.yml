@@ -1,11 +1,10 @@
-# Deploy — Despliega en el VPS de demo
+# Deploy — Despliega en el VPS de demo tras un build exitoso
 name: Deploy
 
 on:
   workflow_run:
     workflows: ["Build & Push"]
     types: [completed]
-    branches: [main]
 
 jobs:
   deploy:
@@ -17,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Deploy via SSH
+      - name: Copy compose files and deploy
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -28,3 +27,5 @@ jobs:
             docker compose -f docker-compose.yml -f docker-compose.prod.yml pull
             docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
             docker image prune -f
+            echo "Deploy completed. Services:"
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml ps

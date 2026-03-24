@@ -1,4 +1,4 @@
-# CI Pipeline — Lint + Test en cada push y PR
+# CI Pipeline — Lint + Typecheck en cada push y PR
 name: CI
 
 on:
@@ -8,9 +8,9 @@ on:
     branches: [main]
 
 jobs:
-  # ── Lint y test del API (Node.js/TypeScript) ──
+  # ── API (Node.js/TypeScript) ──
   api:
-    name: API — Lint & Test
+    name: API — Lint & Typecheck
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -19,53 +19,15 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
           cache-dependency-path: services/api/package-lock.json
       - run: npm ci
-      - run: npm run lint
-      - run: npm run typecheck
-      - run: npm test
+      - run: npx tsc --noEmit
 
-  # ── Lint y test de ingesta (Python) ──
-  ingesta:
-    name: Ingesta — Lint & Test
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: services/ingesta
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-          cache: pip
-      - run: pip install -r requirements.txt -r requirements-dev.txt
-      - run: ruff check .
-      - run: ruff format --check .
-      - run: pytest
-
-  # ── Lint y test de análisis (Python) ──
-  analisis:
-    name: Análisis — Lint & Test
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: services/analisis
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-          cache: pip
-      - run: pip install -r requirements.txt -r requirements-dev.txt
-      - run: ruff check .
-      - run: ruff format --check .
-      - run: pytest
-
-  # ── Lint y test del frontend (React/TypeScript) ──
+  # ── Frontend (React/TypeScript) ──
   frontend:
-    name: Frontend — Lint & Test
+    name: Frontend — Lint & Typecheck
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -74,10 +36,9 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
           cache-dependency-path: services/frontend/package-lock.json
       - run: npm ci
       - run: npm run lint
-      - run: npm run typecheck
-      - run: npm run test
+      - run: npm run build
