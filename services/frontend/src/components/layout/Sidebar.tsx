@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, Link } from 'react-router-dom';
 import { useAuthStore } from '@/store/auth';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -15,15 +15,17 @@ export function Sidebar() {
   const { user, logout } = useAuthStore();
 
   return (
-    <aside className="w-56 bg-sidebar text-sidebar-foreground flex flex-col min-h-screen border-r">
+    <aside className="w-56 bg-sidebar text-sidebar-foreground flex flex-col h-screen border-r fixed top-0 left-0 z-10">
       <div className="p-4">
-        <h1 className="text-lg font-bold tracking-tight">InspectRail</h1>
-        <p className="text-xs text-sidebar-foreground/60 mt-1">Monitoring Platform</p>
+        <Link to="/" className="block hover:opacity-80 transition-opacity">
+          <h1 className="text-lg font-bold tracking-tight">InspectRail</h1>
+          <p className="text-xs text-sidebar-foreground/60 mt-1">Monitoring Platform</p>
+        </Link>
       </div>
 
       <Separator />
 
-      <nav className="flex-1 p-2">
+      <nav className="flex-1 p-2 overflow-y-auto">
         {navItems.map((item) => (
           <NavLink
             key={item.to}

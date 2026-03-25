@@ -47,6 +47,7 @@ export const GET_DASHBOARD_STATS = gql`
         thresholdValue
         detectedAt
         journey {
+          id
           name
           system {
             code

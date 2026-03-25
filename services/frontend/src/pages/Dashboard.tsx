@@ -1,4 +1,5 @@
 import { useQuery } from '@apollo/client/react';
+import { Link } from 'react-router-dom';
 import ReactECharts from 'echarts-for-react';
 import { GET_DASHBOARD_STATS } from '@/graphql/queries';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -116,8 +117,10 @@ export function Dashboard() {
                   <TableCell><SeverityBadge severity={alert.severity} /></TableCell>
                   <TableCell><MetricLabel metric={alert.metric} /></TableCell>
                   <TableCell>
-                    <code className="text-xs text-muted-foreground">{alert.journey.system.code}</code>
-                    {' '}{alert.journey.name}
+                    <Link to={`/journeys/${alert.journey.id}`} className="hover:underline">
+                      <code className="text-xs text-muted-foreground">{alert.journey.system.code}</code>
+                      {' '}{alert.journey.name}
+                    </Link>
                   </TableCell>
                   <TableCell className="font-mono text-xs">{alert.pkStart.toFixed(2)} - {alert.pkEnd.toFixed(2)}</TableCell>
                   <TableCell className="text-right font-mono">{alert.measuredValue.toFixed(2)}</TableCell>
