@@ -30,10 +30,10 @@ export function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+    <div className="min-h-screen flex items-center justify-center" style={{ background: '#0a0202' }}>
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle className="text-2xl">InspectRail</CardTitle>
+          <CardTitle className="text-2xl">Inspect<span className="text-primary">Rail</span></CardTitle>
           <CardDescription>Monitoring Platform</CardDescription>
         </CardHeader>
         <CardContent>

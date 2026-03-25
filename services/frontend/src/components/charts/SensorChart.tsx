@@ -139,11 +139,26 @@ export function SensorChart({ readings, metric, threshold, alerts, height = 250 
       nameLocation: 'end' as const,
       nameTextStyle: { fontSize: 10, color: '#94a3b8' },
     },
-    yAxis: {
-      type: 'value' as const,
-      axisLabel: { fontSize: 10 },
-      splitLine: { lineStyle: { color: '#f1f5f9' } },
-    },
+    yAxis: (() => {
+      const base: any = {
+        type: 'value' as const,
+        axisLabel: { fontSize: 10 },
+        splitLine: { lineStyle: { color: '#f1f5f9' } },
+      };
+      // For gauge (~1435mm), force Y range to include thresholds
+      if (threshold) {
+        const thresholdKey = metricToThresholdKey[metric];
+        if (threshold.metric === thresholdKey) {
+          const allValues = values.filter((v: any) => v != null) as number[];
+          const dataMin = Math.min(...allValues);
+          const dataMax = Math.max(...allValues);
+          const margin = Math.abs(dataMax - dataMin) * 0.1 || 1;
+          base.min = Math.floor(Math.min(dataMin, threshold.criticalMin) - margin);
+          base.max = Math.ceil(Math.max(dataMax, threshold.criticalMax) + margin);
+        }
+      }
+      return base;
+    })(),
     series: [
       {
         type: 'line',

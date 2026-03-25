@@ -66,8 +66,8 @@ export function JourneyDetail() {
       </div>
 
       {/* Mapa */}
-      <Card className="mb-6">
-        <CardHeader className="flex-row items-center justify-between space-y-0 pb-2">
+      <Card className="mb-6 gap-0 py-0">
+        <CardHeader className="flex-row items-center justify-between space-y-0 py-3">
           <CardTitle className="text-base">
             Mapa del trayecto
             {readings.length > 0 && (

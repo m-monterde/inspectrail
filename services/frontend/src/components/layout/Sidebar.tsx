@@ -1,14 +1,15 @@
 import { NavLink, Link } from 'react-router-dom';
+import { LayoutDashboard, Route, AlertTriangle, Train, SlidersHorizontal } from 'lucide-react';
 import { useAuthStore } from '@/store/auth';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 
 const navItems = [
-  { to: '/', label: 'Dashboard', icon: '□' },
-  { to: '/journeys', label: 'Trayectos', icon: '⟶' },
-  { to: '/alerts', label: 'Alertas', icon: '△' },
-  { to: '/systems', label: 'Sistemas', icon: '◎' },
-  { to: '/thresholds', label: 'Umbrales', icon: '⊞' },
+  { to: '/', label: 'Dashboard', icon: LayoutDashboard },
+  { to: '/journeys', label: 'Trayectos', icon: Route },
+  { to: '/alerts', label: 'Alertas', icon: AlertTriangle },
+  { to: '/systems', label: 'Sistemas', icon: Train },
+  { to: '/thresholds', label: 'Umbrales', icon: SlidersHorizontal },
 ];
 
 export function Sidebar() {
@@ -18,8 +19,8 @@ export function Sidebar() {
     <aside className="w-56 bg-sidebar text-sidebar-foreground flex flex-col h-screen border-r fixed top-0 left-0 z-10">
       <div className="p-4">
         <Link to="/" className="block hover:opacity-80 transition-opacity">
-          <h1 className="text-lg font-bold tracking-tight">InspectRail</h1>
-          <p className="text-xs text-sidebar-foreground/60 mt-1">Monitoring Platform</p>
+          <h1 className="text-lg font-bold tracking-tight">Inspect<span className="text-accent">Rail</span></h1>
+          <p className="text-xs text-sidebar-foreground/50 mt-1">Monitoring Platform</p>
         </Link>
       </div>
 
@@ -39,7 +40,7 @@ export function Sidebar() {
               }`
             }
           >
-            <span className="text-base">{item.icon}</span>
+            <item.icon className="size-4" />
             {item.label}
           </NavLink>
         ))}
