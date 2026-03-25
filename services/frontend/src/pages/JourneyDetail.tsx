@@ -1,42 +1,30 @@
 import { useState } from 'react';
 import { useQuery } from '@apollo/client/react';
-import { useParams, Link } from 'react-router-dom';
-import { GET_JOURNEY, GET_SENSOR_READINGS, GET_THRESHOLDS } from '../graphql/queries';
-import { SensorChart } from '../components/charts/SensorChart';
-import { JourneyMap } from '../components/maps/JourneyMap';
+import { useParams } from 'react-router-dom';
+import { GET_JOURNEY, GET_SENSOR_READINGS, GET_THRESHOLDS } from '@/graphql/queries';
+import { SensorChart } from '@/components/charts/SensorChart';
+import { JourneyMap } from '@/components/maps/JourneyMap';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Skeleton } from '@/components/ui/skeleton';
+import { SeverityBadge } from '@/components/domain/SeverityBadge';
+import { MetricLabel } from '@/components/domain/MetricLabel';
+import { KpiCard } from '@/components/domain/KpiCard';
+import { PageHeader } from '@/components/domain/PageHeader';
 
-const metricLabels: Record<string, string> = {
-  accel_vertical: 'Acel. Vertical',
-  accel_lateral: 'Acel. Lateral',
-  accel_longitudinal: 'Acel. Longitudinal',
-  leveling: 'Nivelacion',
-  alignment: 'Alineacion',
-  twist: 'Alabeo',
-  gauge: 'Ancho via',
-  speed: 'Velocidad',
-};
-
-// Métricas a mostrar como gráficas (clave = campo en sensorReadings)
-const chartMetrics = [
-  'leveling',
-  'alignment',
-  'twist',
-  'gauge',
-  'accelVertical',
-  'accelLateral',
-  'speed',
-];
-
-// Mapeo campo readings → campo threshold
+const chartMetrics = ['leveling', 'alignment', 'twist', 'gauge', 'accelVertical', 'accelLateral', 'speed'];
 const readingKeyToThresholdMetric: Record<string, string> = {
-  leveling: 'leveling',
-  alignment: 'alignment',
-  twist: 'twist',
-  gauge: 'gauge',
-  accelVertical: 'accel_vertical',
-  accelLateral: 'accel_lateral',
-  speed: 'speed',
+  leveling: 'leveling', alignment: 'alignment', twist: 'twist', gauge: 'gauge',
+  accelVertical: 'accel_vertical', accelLateral: 'accel_lateral', speed: 'speed',
 };
+const colorOptions = [
+  { value: 'none', label: 'Sin colorear' },
+  { value: 'leveling', label: 'Nivelacion' },
+  { value: 'alignment', label: 'Alineacion' },
+  { value: 'twist', label: 'Alabeo' },
+  { value: 'accelVertical', label: 'Acel. Vertical' },
+  { value: 'accelLateral', label: 'Acel. Lateral' },
+];
 
 export function JourneyDetail() {
   const { id } = useParams<{ id: string }>();
@@ -50,176 +38,147 @@ export function JourneyDetail() {
   const { data: thresholdData } = useQuery<any>(GET_THRESHOLDS);
   const [mapColorBy, setMapColorBy] = useState<string>('none');
 
-  if (loading) return <div className="text-slate-500">Cargando trayecto...</div>;
-  if (error) return <div className="text-red-500">Error: {error.message}</div>;
-  if (!data?.journey) return <div className="text-slate-500">Trayecto no encontrado</div>;
+  if (loading) return (
+    <div>
+      <PageHeader title="Cargando..." breadcrumbs={[{ label: 'Trayectos', to: '/journeys' }]} />
+      <div className="grid grid-cols-4 gap-4 mb-6">{[1,2,3,4].map(i => <Skeleton key={i} className="h-16 rounded-lg" />)}</div>
+      <Skeleton className="h-96 rounded-lg mb-6" />
+      <div className="grid grid-cols-2 gap-4 mb-6">{[1,2,3,4].map(i => <Skeleton key={i} className="h-56 rounded-lg" />)}</div>
+    </div>
+  );
+  if (error) return <div className="text-destructive">Error: {error.message}</div>;
+  if (!data?.journey) return <div className="text-muted-foreground">Trayecto no encontrado</div>;
 
   const j = data.journey;
   const readings = sensorData?.sensorReadings ?? [];
   const thresholds = thresholdData?.thresholds ?? [];
 
-  const colorOptions = [
-    { value: 'none', label: 'Sin colorear' },
-    { value: 'leveling', label: 'Nivelacion' },
-    { value: 'alignment', label: 'Alineacion' },
-    { value: 'twist', label: 'Alabeo' },
-    { value: 'accelVertical', label: 'Acel. Vertical' },
-    { value: 'accelLateral', label: 'Acel. Lateral' },
-  ];
-
   return (
     <div>
-      <div className="flex items-center gap-2 mb-6">
-        <Link to="/journeys" className="text-slate-500 hover:text-slate-700 text-sm">Trayectos</Link>
-        <span className="text-slate-300">/</span>
-        <h1 className="text-2xl font-bold text-slate-900">{j.name}</h1>
-      </div>
+      <PageHeader title={j.name} breadcrumbs={[{ label: 'Trayectos', to: '/journeys' }]} />
 
       {/* Info */}
       <div className="grid grid-cols-4 gap-4 mb-6">
-        <InfoCard label="Sistema" value={`${j.system.name} (${j.system.code})`} />
-        <InfoCard label="Estado" value={j.status} />
-        <InfoCard label="Inicio" value={new Date(j.startedAt).toLocaleString('es-ES')} />
-        <InfoCard label="Fin" value={j.endedAt ? new Date(j.endedAt).toLocaleString('es-ES') : 'En curso'} />
+        <KpiCard label="Sistema" value={`${j.system.code}`} sub={j.system.name} />
+        <KpiCard label="Estado" value={j.status} />
+        <KpiCard label="Inicio" value={new Date(j.startedAt).toLocaleString('es-ES', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })} />
+        <KpiCard label="Fin" value={j.endedAt ? new Date(j.endedAt).toLocaleString('es-ES', { hour: '2-digit', minute: '2-digit' }) : 'En curso'} />
       </div>
 
-      {/* Mapa del trayecto */}
-      <div className="mb-6">
-        <div className="bg-white rounded-lg border border-slate-200 shadow-sm">
-          <div className="px-4 py-3 border-b border-slate-200 flex items-center justify-between">
-            <h2 className="font-semibold text-slate-900">
-              Mapa del trayecto
-              {readings.length > 0 && (
-                <span className="ml-2 text-xs font-normal text-slate-400">
-                  {readings.length.toLocaleString()} lecturas de sensores
-                </span>
-              )}
-            </h2>
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-slate-500">Colorear por:</span>
-              <select
-                value={mapColorBy}
-                onChange={(e) => setMapColorBy(e.target.value)}
-                disabled={sensorLoading}
-                className="text-xs border border-slate-300 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-slate-400 disabled:opacity-50"
-              >
-                {colorOptions.map((opt) => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
-                ))}
-              </select>
-            </div>
+      {/* Mapa */}
+      <Card className="mb-6">
+        <CardHeader className="flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-base">
+            Mapa del trayecto
+            {readings.length > 0 && (
+              <span className="ml-2 text-xs font-normal text-muted-foreground">
+                {readings.length.toLocaleString()} lecturas
+              </span>
+            )}
+          </CardTitle>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground">Colorear por:</span>
+            <select
+              value={mapColorBy}
+              onChange={(e) => setMapColorBy(e.target.value)}
+              disabled={sensorLoading}
+              className="text-xs border border-input rounded-md px-2 py-1 bg-background focus:outline-none focus:ring-1 focus:ring-ring disabled:opacity-50"
+            >
+              {colorOptions.map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
           </div>
-          {mapColorBy !== 'none' && (
-            <div className="px-4 py-1.5 bg-slate-50 border-b border-slate-200 flex items-center gap-4 text-xs text-slate-500">
-              <span>Escala:</span>
-              <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded-sm" style={{ background: '#22c55e' }}></span> Normal</span>
-              <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded-sm" style={{ background: '#f59e0b' }}></span> Warning</span>
-              <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded-sm" style={{ background: '#f97316' }}></span> Alert</span>
-              <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded-sm" style={{ background: '#ef4444' }}></span> Critical</span>
-            </div>
-          )}
+        </CardHeader>
+        {mapColorBy !== 'none' && (
+          <div className="px-4 py-1.5 bg-muted border-b flex items-center gap-4 text-xs text-muted-foreground">
+            <span>Escala:</span>
+            <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded-sm" style={{ background: '#22c55e' }}></span> Normal</span>
+            <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded-sm" style={{ background: '#f59e0b' }}></span> Warning</span>
+            <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded-sm" style={{ background: '#f97316' }}></span> Alert</span>
+            <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded-sm" style={{ background: '#ef4444' }}></span> Critical</span>
+          </div>
+        )}
+        <CardContent className="p-0">
           {sensorLoading ? (
-            <div style={{ height: 400 }} className="flex items-center justify-center bg-slate-50">
+            <div style={{ height: 400 }} className="flex items-center justify-center bg-muted/50">
               <div className="text-center">
-                <div className="inline-block w-6 h-6 border-2 border-slate-300 border-t-slate-600 rounded-full animate-spin mb-2"></div>
-                <p className="text-sm text-slate-400">Cargando datos del trayecto...</p>
+                <div className="inline-block w-6 h-6 border-2 border-muted-foreground/30 border-t-muted-foreground rounded-full animate-spin mb-2"></div>
+                <p className="text-sm text-muted-foreground">Cargando datos...</p>
               </div>
             </div>
           ) : readings.length > 0 ? (
             <JourneyMap readings={readings} alerts={j.alerts} height={400} colorBy={mapColorBy as any} />
           ) : (
-            <div style={{ height: 400 }} className="flex items-center justify-center bg-slate-50">
-              <p className="text-sm text-slate-400">Sin datos de sensores</p>
+            <div style={{ height: 400 }} className="flex items-center justify-center bg-muted/50">
+              <p className="text-sm text-muted-foreground">Sin datos de sensores</p>
             </div>
           )}
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
-      {/* Gráficas de sensores */}
+      {/* Gráficas */}
       <div className="grid grid-cols-2 gap-4 mb-6">
         {chartMetrics.map((metric) => {
           const thresholdMetric = readingKeyToThresholdMetric[metric];
           const threshold = thresholds.find((t: any) => t.metric === thresholdMetric);
           return (
-            <div key={metric} className="bg-white rounded-lg border border-slate-200 shadow-sm p-2">
-              {sensorLoading ? (
-                <div style={{ height: 220 }} className="flex items-center justify-center">
-                  <div className="inline-block w-5 h-5 border-2 border-slate-200 border-t-slate-500 rounded-full animate-spin"></div>
-                </div>
-              ) : readings.length > 0 ? (
-                <SensorChart
-                  readings={readings}
-                  metric={metric}
-                  threshold={threshold}
-                  alerts={j.alerts}
-                  height={220}
-                />
-              ) : (
-                <div style={{ height: 220 }} className="flex items-center justify-center text-sm text-slate-300">
-                  Sin datos
-                </div>
-              )}
-            </div>
+            <Card key={metric}>
+              <CardContent className="p-2">
+                {sensorLoading ? (
+                  <Skeleton className="h-[220px] rounded" />
+                ) : readings.length > 0 ? (
+                  <SensorChart readings={readings} metric={metric} threshold={threshold} alerts={j.alerts} height={220} />
+                ) : (
+                  <div style={{ height: 220 }} className="flex items-center justify-center text-sm text-muted-foreground">Sin datos</div>
+                )}
+              </CardContent>
+            </Card>
           );
         })}
       </div>
 
-      {/* Alertas del trayecto */}
-      <div className="bg-white rounded-lg border border-slate-200 shadow-sm mb-6">
-        <div className="px-4 py-3 border-b border-slate-200 flex items-center justify-between">
-          <h2 className="font-semibold text-slate-900">
-            Alertas ({j.alertCount.warning + j.alertCount.alert + j.alertCount.critical})
-          </h2>
-          <div className="flex gap-2 text-xs">
-            <span className="bg-red-100 text-red-700 px-2 py-0.5 rounded">{j.alertCount.critical} critical</span>
-            <span className="bg-orange-100 text-orange-700 px-2 py-0.5 rounded">{j.alertCount.alert} alert</span>
-            <span className="bg-amber-100 text-amber-700 px-2 py-0.5 rounded">{j.alertCount.warning} warning</span>
+      {/* Alertas */}
+      <Card className="mb-6">
+        <CardHeader className="flex-row items-center justify-between space-y-0">
+          <CardTitle className="text-base">Alertas ({j.alertCount.warning + j.alertCount.alert + j.alertCount.critical})</CardTitle>
+          <div className="flex gap-2">
+            <SeverityBadge severity="critical" /><span className="text-xs text-muted-foreground">{j.alertCount.critical}</span>
+            <SeverityBadge severity="alert" /><span className="text-xs text-muted-foreground">{j.alertCount.alert}</span>
+            <SeverityBadge severity="warning" /><span className="text-xs text-muted-foreground">{j.alertCount.warning}</span>
           </div>
-        </div>
-        {j.alerts.length > 0 ? (
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-slate-100 text-left text-slate-500">
-                <th className="px-4 py-2 font-medium">Severidad</th>
-                <th className="px-4 py-2 font-medium">Metrica</th>
-                <th className="px-4 py-2 font-medium">PK</th>
-                <th className="px-4 py-2 font-medium">Valor medido</th>
-                <th className="px-4 py-2 font-medium">Umbral</th>
-                <th className="px-4 py-2 font-medium">Desviacion</th>
-              </tr>
-            </thead>
-            <tbody>
-              {j.alerts.map((a: any) => (
-                <tr key={a.id} className="border-b border-slate-50 hover:bg-slate-50">
-                  <td className="px-4 py-2">
-                    <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${
-                      a.severity === 'critical' ? 'bg-red-100 text-red-700' :
-                      a.severity === 'alert' ? 'bg-orange-100 text-orange-700' :
-                      'bg-amber-100 text-amber-700'
-                    }`}>{a.severity}</span>
-                  </td>
-                  <td className="px-4 py-2 text-slate-700">{metricLabels[a.metric] || a.metric}</td>
-                  <td className="px-4 py-2 font-mono text-xs">{a.pkStart.toFixed(2)} - {a.pkEnd.toFixed(2)} km</td>
-                  <td className="px-4 py-2 font-mono">{a.measuredValue.toFixed(2)}</td>
-                  <td className="px-4 py-2 font-mono text-slate-500">{a.thresholdValue.toFixed(2)}</td>
-                  <td className="px-4 py-2 font-mono text-red-600">+{a.deviation.toFixed(2)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
-          <p className="px-4 py-6 text-slate-400 text-center text-sm">Sin alertas en este trayecto</p>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function InfoCard({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="bg-white rounded-lg border border-slate-200 p-3">
-      <p className="text-xs text-slate-500">{label}</p>
-      <p className="text-sm font-medium text-slate-900 mt-0.5">{value}</p>
+        </CardHeader>
+        <CardContent className="p-0">
+          {j.alerts.length > 0 ? (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Severidad</TableHead>
+                  <TableHead>Metrica</TableHead>
+                  <TableHead>PK</TableHead>
+                  <TableHead className="text-right">Valor</TableHead>
+                  <TableHead className="text-right">Umbral</TableHead>
+                  <TableHead className="text-right">Desviacion</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {j.alerts.map((a: any) => (
+                  <TableRow key={a.id}>
+                    <TableCell><SeverityBadge severity={a.severity} /></TableCell>
+                    <TableCell><MetricLabel metric={a.metric} /></TableCell>
+                    <TableCell className="font-mono text-xs">{a.pkStart.toFixed(2)} - {a.pkEnd.toFixed(2)} km</TableCell>
+                    <TableCell className="text-right font-mono">{a.measuredValue.toFixed(2)}</TableCell>
+                    <TableCell className="text-right font-mono text-muted-foreground">{a.thresholdValue.toFixed(2)}</TableCell>
+                    <TableCell className="text-right font-mono text-destructive">+{a.deviation.toFixed(2)}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          ) : (
+            <p className="px-4 py-6 text-muted-foreground text-center text-sm">Sin alertas en este trayecto</p>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

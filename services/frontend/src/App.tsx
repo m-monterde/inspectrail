@@ -1,13 +1,13 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { Layout } from './components/layout/Layout';
-import { Login } from './pages/Login';
-import { Dashboard } from './pages/Dashboard';
-import { Journeys } from './pages/Journeys';
-import { JourneyDetail } from './pages/JourneyDetail';
-import { Alerts } from './pages/Alerts';
-import { Systems } from './pages/Systems';
-import { Thresholds } from './pages/Thresholds';
-import { useAuthStore } from './store/auth';
+import { Layout } from '@/components/layout/Layout';
+import { Login } from '@/pages/Login';
+import { Dashboard } from '@/pages/Dashboard';
+import { Journeys } from '@/pages/Journeys';
+import { JourneyDetail } from '@/pages/JourneyDetail';
+import { Alerts } from '@/pages/Alerts';
+import { Systems } from '@/pages/Systems';
+import { Thresholds } from '@/pages/Thresholds';
+import { useAuthStore } from '@/store/auth';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const token = useAuthStore((s) => s.token);
