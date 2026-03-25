@@ -11,8 +11,7 @@ Plataforma centralizada de monitorización de infraestructura ferroviaria.
 inspectrail/
 ├── docs/
 │   ├── decisiones_arquitectonicas.docx   # 12 ADRs documentadas
-│   ├── documentacion_proyecto.docx       # Documentación técnica completa
-│   └── notas_presentacion.md             # Guion de la presentación
+│   └── documentacion_proyecto.docx       # Documentación técnica completa
 ├── services/
 │   ├── database/                  # Base de datos (PostgreSQL + TimescaleDB + PostGIS)
 │   ├── api/                       # API Backend (Node.js + TypeScript + GraphQL)
@@ -141,15 +140,13 @@ Disponible en:
 
 Controles: flechas para navegar, F = pantalla completa, S = notas del presentador.
 
-Guion detallado en `docs/notas_presentacion.md`.
-
 ## Estado actual
 
 | Componente | Estado | Tecnología |
 |------------|--------|------------|
 | Base de datos | Completado | PostgreSQL 16 + TimescaleDB + PostGIS |
 | API Backend | Completado | Node.js + TypeScript + Apollo Server + Prisma |
-| Frontend | Completado | React 19 + Vite + Tailwind + ECharts + MapLibre GL |
+| Frontend | Completado | React 19 + Vite + Tailwind + shadcn/ui + Apollo Client + ECharts + MapLibre GL |
 | CI/CD | Completado | GitHub Actions + Docker + ghcr.io |
 | Deploy | Completado | VPS Hetzner + Traefik + HTTPS (Let's Encrypt) |
 | Ingesta | Diseñado | Python (asyncio + FastAPI) |

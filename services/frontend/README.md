@@ -1,15 +1,17 @@
 # Frontend — InspectRail Platform
 
 ## Tecnología
-- **React 18+** con **TypeScript**
+- **React 19** con **TypeScript**
 - **Vite** (bundler — SPA, sin SSR)
 - **MapLibre GL JS** via react-map-gl (mapas WebGL)
 - **Apache ECharts** via echarts-for-react (gráficas Canvas/WebGL)
-- **Tailwind CSS + shadcn/ui** (UI y estilos)
-- **Apollo Client** (GraphQL queries, mutations y subscriptions)
-- **Zustand** (estado global UI)
-- **React Hook Form + zod** (formularios y validación)
+- **Tailwind CSS v4 + shadcn/ui** (UI y estilos)
+- **Colores corporativos** de inspectrail.es: #0437f2 (azul), #cff348 (lima), #0a0202 (navy)
+- **Lucide React** (iconos en sidebar y UI)
+- **Apollo Client 4** (GraphQL queries y mutations)
+- **Zustand** (estado global — auth store)
 - **React Router v7** (routing)
+- **Vitest** (13 tests)
 
 ## Decisiones clave
 - Ver **ADR-008** en `docs/decisiones_arquitectonicas.docx`
@@ -29,15 +31,14 @@ services/frontend/
 │   │   ├── charts/          # Componentes de gráficas (SensorChart, AlertTimeline)
 │   │   └── layout/          # Layout general (Sidebar, Header, Content)
 │   ├── pages/
+│   │   ├── Login.tsx
 │   │   ├── Dashboard.tsx
-│   │   ├── Alerts.tsx
-│   │   ├── AlertDetail.tsx
 │   │   ├── Journeys.tsx
 │   │   ├── JourneyDetail.tsx
-│   │   ├── MapView.tsx
+│   │   ├── Alerts.tsx
+│   │   ├── AlertDetail.tsx
 │   │   ├── Systems.tsx
-│   │   ├── Settings.tsx
-│   │   └── Login.tsx
+│   │   └── Thresholds.tsx
 │   ├── hooks/               # Custom hooks (useAlerts, useJourneys, useMap...)
 │   ├── graphql/
 │   │   ├── queries/         # Queries GraphQL por dominio
@@ -72,17 +73,16 @@ services/frontend/
 - Recepción de alertas en tiempo real vía GraphQL Subscriptions
 - Gestión de umbrales, sistemas de inspección y usuarios (según rol)
 
-## Vistas principales
+## Vistas principales (8 páginas)
 
-1. **Dashboard** — KPIs (alertas activas por severidad, trayectos recientes, estado de dispositivos), gráfica de tendencias, alertas más recientes
-2. **Alertas** — tabla filtrable/ordenable con paginación. Filtros por severidad, métrica, trayecto, rango de fechas
-3. **Detalle de alerta** — mapa con el segmento afectado resaltado, gráfica del sensor en ese tramo con marcas de umbral, datos del trayecto
-4. **Mapa** — vista geoespacial completa. Trayectos como líneas, alertas como segmentos coloreados por severidad (verde=normal, amarillo=warning, naranja=alert, rojo=critical)
-5. **Trayectos** — listado de sesiones de medición con estado, dispositivo, fecha, número de alertas
-6. **Detalle de trayecto** — mapa del recorrido, gráficas de todas las métricas, listado de alertas del trayecto
-7. **Sistemas** — dispositivos registrados, estado de conexión, último contacto
-8. **Configuración** — umbrales por métrica, gestión de usuarios (admin_org)
-9. **Login** — autenticación JWT
+1. **Login** — autenticación JWT
+2. **Dashboard** — KPIs (alertas activas por severidad, trayectos recientes, estado de dispositivos), alertas más recientes
+3. **Journeys** — listado de sesiones de medición con estado, dispositivo, fecha, número de alertas
+4. **JourneyDetail** — mapa del recorrido, gráficas de todas las métricas, listado de alertas del trayecto
+5. **Alerts** — tabla filtrable/ordenable con paginación. Filtros por severidad, métrica, trayecto, rango de fechas
+6. **AlertDetail** — mapa con el segmento afectado resaltado, gráfica del sensor en ese tramo con marcas de umbral, datos del trayecto
+7. **Systems** — dispositivos registrados, estado de conexión, último contacto
+8. **Thresholds** — umbrales por métrica (editable por admin_org)
 
 ## Rendimiento: downsampling por nivel de zoom
 

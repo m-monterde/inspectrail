@@ -59,27 +59,23 @@ devops/
 | `analisis` | ghcr.io/inspectrail/analisis | 8002 | Servicio de análisis (Python) |
 | `api` | ghcr.io/inspectrail/api | 3000 | API GraphQL (Node.js) |
 | `frontend` | ghcr.io/inspectrail/frontend | 8080 | App web (archivos estáticos + Nginx) |
-| `traefik` | traefik:v3 | 80/443 | Proxy inverso (solo SaaS) |
+| `traefik` | traefik:v2.11 | 80/443 | Proxy inverso (solo SaaS) |
 | `prometheus` | prom/prometheus | 9090 | Métricas |
 | `grafana` | grafana/grafana | 3001 | Dashboards y alertas |
 | `loki` | grafana/loki | 3100 | Logs centralizados |
 
 ## Pipelines CI/CD
 
-### CI — En cada push y PR
+### CI — En cada push a main
 ```
-Lint  →  Test  →  Type check
- │         │          │
- ├ ESLint  ├ Jest     ├ tsc (TypeScript)
- ├ Ruff    ├ Pytest   └ mypy (Python)
- └ SQL     └ Vitest
+Lint  →  Type check  →  Test
+ │           │             │
+ └ ESLint    └ tsc         └ Vitest (29 tests: 16 API + 13 Frontend)
 ```
 
-### Build + Deploy — En merge a main
+### Build + Deploy — En push de tag v*
 ```
-Build Docker  →  Push ghcr.io  →  Deploy staging (auto)
-                                         │
-                                   Deploy prod (manual + aprobación)
+Build Docker  →  Push ghcr.io (tags semver + latest + sha)  →  Deploy (SSH + docker compose pull/up)
 ```
 
 ### Flujo de despliegue

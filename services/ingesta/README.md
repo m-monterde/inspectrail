@@ -1,5 +1,7 @@
 # Servicio de Ingesta — InspectRail Platform
 
+> **Estado: Diseñado, no implementado.** Este servicio forma parte de la arquitectura completa pero no se ha desarrollado en el prototipo actual.
+
 ## Tecnología
 - **Python** (asyncio + uvicorn/FastAPI)
 - Driver BD: asyncpg (driver async nativo para PostgreSQL)

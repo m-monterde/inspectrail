@@ -1,5 +1,7 @@
 # Servicio de Análisis — InspectRail Platform
 
+> **Estado: Diseñado, no implementado.** Este servicio forma parte de la arquitectura completa pero no se ha desarrollado en el prototipo actual.
+
 ## Tecnología
 - **Python** (NumPy, SciPy, Pandas)
 - Evaluación de umbrales con operaciones vectorizadas

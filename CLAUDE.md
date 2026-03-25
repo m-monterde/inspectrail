@@ -10,7 +10,7 @@ Es un reto técnico para un proceso de selección de Ingeniero Full Stack. El ob
 - **Repositorio**: github.com/m-monterde/inspectrail (público, cuenta m-monterde)
 - **Demo live**: https://inspectrail.duckdns.org
 - **VPS**: Hetzner 204.168.173.222, usuario `deploy`, acceso SSH por clave
-- **Versión actual**: v0.2.0
+- **Versión actual**: v0.3.0
 
 ## Arquitectura (5 servicios)
 ```
@@ -100,21 +100,25 @@ Dependencias: @apollo/server, graphql, @graphql-tools/schema, @graphql-tools/loa
 - Login, dashboard, journeys, alerts, sensorReadings, thresholds, inspectionSystems
 - Auth JWT + RBAC con permisos granulares + multitenencia por organizationId
 - Dockerfile multi-stage (node:22-slim, ejecuta con tsx)
-- Pendiente: subscriptions (alertas en vivo), mutations secundarias (createUser, etc.), tests
+- Tests: 16 tests con Vitest
+- Pendiente: subscriptions (alertas en vivo), mutations secundarias (createUser, etc.)
 
 ## Frontend — Estado completado
-- React 19 + Vite + TypeScript + Tailwind CSS v4 + Apollo Client 4
+- React 19 + Vite + TypeScript + Tailwind CSS v4 + shadcn/ui + Apollo Client 4
+- Colores corporativos de inspectrail.es: #0437f2 (azul), #cff348 (lima), #0a0202 (navy)
+- Iconos: Lucide React en sidebar y toda la UI
 - 8 Páginas: Login, Dashboard, Journeys, JourneyDetail, Alerts, AlertDetail, Systems, Thresholds
 - Gráficas de sensores con Apache ECharts (zoom/pan, líneas de umbral)
 - Mapas con MapLibre GL JS (rutas coloreadas por métrica, downsampling por zoom)
+- Tests: 13 tests con Vitest
 - Dockerfile multi-stage (Vite build + Nginx Alpine)
 - Nginx como servidor con proxy /graphql → API
 - Apollo Client 4: hooks en `@apollo/client/react`, config en `@apollo/client/core`, gql en `graphql-tag`
 
 ## Deploy — Estado completado
-- Demo live: https://inspectrail.duckdns.org (v0.2.0)
+- Demo live: https://inspectrail.duckdns.org (v0.3.0)
 - 4 contenedores: database (TimescaleDB), api (Node.js), frontend (Nginx), proxy (Traefik v2.11)
-- CI: push a main → lint + typecheck (API + frontend)
+- CI: push a main → lint + typecheck + tests (API + frontend, 29 tests con Vitest)
 - Build & Push: push tag `v*` → build imágenes → push a ghcr.io con tags semver + latest + sha
 - Deploy: automático tras build exitoso vía SSH + docker compose pull/up
 - Traefik v2.11 como proxy inverso con HTTPS automático (Let's Encrypt)
@@ -125,10 +129,10 @@ Dependencias: @apollo/server, graphql, @graphql-tools/schema, @graphql-tools/loa
 
 ## CI/CD — Flujo de despliegue
 ```
-push a main  →  CI (lint + typecheck)
+push a main  →  CI (lint + typecheck + tests)
 push tag v*  →  Build & Push (docker build → ghcr.io)  →  Deploy (SSH → docker compose up)
 ```
-Para desplegar: `git tag -a v0.2.0 -m "descripción" && git push origin v0.2.0`
+Para desplegar: `git tag -a v0.3.0 -m "descripción" && git push origin v0.3.0`
 
 ## Siguiente paso
 Diseño visual del frontend y presentación técnica.

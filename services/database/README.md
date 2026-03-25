@@ -71,6 +71,20 @@ services/database/
 | `group_systems` | N:M grupo ↔ sistema |
 | `alert_subscriptions` | Preferencias de notificación de usuario (canal, severidad mínima, alcance) |
 
+## Datos de demo (seed)
+
+| Dato | Cantidad |
+|------|----------|
+| Organizaciones | 1 (InspectRail Demo) |
+| Usuarios | 2 (Mario Monterde admin + operador) |
+| Sistemas de inspección | 2 (S121 conectado, S245 desconectado) |
+| Trayectos | 4 (rutas reales vascas: Donostia-Bilbao, Vitoria-Pamplona) |
+| Lecturas de sensores | 11.800 (10.000 en el trayecto principal) |
+| Alertas | 31 (warning, alert, critical) |
+| Umbrales | 6 métricas configuradas |
+
+Credenciales: admin@inspectrail.demo / demo1234
+
 ## Cómo ejecutar
 ```bash
 docker compose up database

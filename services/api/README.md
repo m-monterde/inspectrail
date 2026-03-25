@@ -264,8 +264,17 @@ Comandos:
 
 | Usuario | Email | Contraseña | Rol |
 |---------|-------|------------|-----|
-| Admin | admin@inspectrail.demo | demo1234 | admin_org |
+| Mario Monterde (Admin) | admin@inspectrail.demo | demo1234 | admin_org |
 | Operador | operador@inspectrail.demo | demo1234 | operator |
+
+## Tests
+
+16 tests con **Vitest** cubriendo servicios y resolvers:
+
+```bash
+npm test           # ejecutar tests
+npm run test:watch # modo watch
+```
 
 ## Cómo ejecutar
 ```bash
