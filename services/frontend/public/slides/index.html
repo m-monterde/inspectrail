@@ -98,19 +98,46 @@
 <!-- 4. ARQUITECTURA -->
 <section>
 <h2>Arquitectura — 5 servicios</h2>
-<div class="mono" style="font-size:0.6em; text-align:center;">
-Tren (sensores)
-    ↓
-<span class="pill pill-yellow">Ingesta (Python)</span>  →  <span class="pill pill-blue">BD (TimescaleDB)</span>  →  <span class="pill pill-yellow">Análisis (Python)</span>
-                                    ↓
-                        pg_notify('new_alert')
-                                    ↓
-                      <span class="pill pill-green">API (Node+GraphQL)</span>  →  <span class="pill pill-blue">Frontend (React)</span>
+<div style="display:flex; align-items:center; justify-content:center; gap:12px; flex-wrap:wrap; margin:20px 0;">
+  <div style="background:#1e293b; border:2px solid #94a3b8; border-radius:12px; padding:14px 18px; text-align:center; min-width:120px;">
+    <div style="font-size:1.4em;">&#x1F682;</div>
+    <div style="font-size:0.7em; color:#94a3b8; margin-top:4px;">Tren (sensores)</div>
+  </div>
+  <div style="color:#475569; font-size:1.2em;">&#x27A1;</div>
+  <div style="background:#713f12; border:2px solid #fbbf24; border-radius:12px; padding:14px 18px; text-align:center; min-width:120px;">
+    <div style="font-size:0.85em; font-weight:600; color:#fbbf24;">Ingesta</div>
+    <div style="font-size:0.6em; color:#d4a574; margin-top:2px;">Python + FastAPI</div>
+  </div>
+  <div style="color:#475569; font-size:1.2em;">&#x27A1;</div>
+  <div style="background:#1e3a5f; border:2px solid #60a5fa; border-radius:12px; padding:14px 22px; text-align:center; min-width:140px;">
+    <div style="font-size:0.85em; font-weight:600; color:#60a5fa;">Base de datos</div>
+    <div style="font-size:0.6em; color:#7cb3f0; margin-top:2px;">TimescaleDB + PostGIS</div>
+  </div>
+  <div style="color:#475569; font-size:1.2em;">&#x27A1;</div>
+  <div style="background:#713f12; border:2px solid #fbbf24; border-radius:12px; padding:14px 18px; text-align:center; min-width:120px;">
+    <div style="font-size:0.85em; font-weight:600; color:#fbbf24;">Análisis</div>
+    <div style="font-size:0.6em; color:#d4a574; margin-top:2px;">Python + NumPy</div>
+  </div>
+</div>
+<div style="display:flex; align-items:center; justify-content:center; gap:12px; margin:8px 0;">
+  <div style="color:#475569; font-size:0.7em; padding:4px 10px; border:1px dashed #475569; border-radius:6px;">pg_notify('new_alert')</div>
+  <div style="color:#475569; font-size:1.2em;">&#x2B07;</div>
+</div>
+<div style="display:flex; align-items:center; justify-content:center; gap:12px; margin:8px 0;">
+  <div style="background:#14532d; border:2px solid #4ade80; border-radius:12px; padding:14px 18px; text-align:center; min-width:140px;">
+    <div style="font-size:0.85em; font-weight:600; color:#4ade80;">API</div>
+    <div style="font-size:0.6em; color:#86efac; margin-top:2px;">Node.js + GraphQL</div>
+  </div>
+  <div style="color:#475569; font-size:1.2em;">&#x27A1;</div>
+  <div style="background:#1e3a5f; border:2px solid #60a5fa; border-radius:12px; padding:14px 18px; text-align:center; min-width:140px;">
+    <div style="font-size:0.85em; font-weight:600; color:#60a5fa;">Frontend</div>
+    <div style="font-size:0.6em; color:#7cb3f0; margin-top:2px;">React + MapLibre + ECharts</div>
+  </div>
 </div>
 <br>
 <div class="grid-2">
-<div class="box"><h3>ADR-002</h3><p>Análisis como servicio independiente — no dentro de la API. Escalado independiente, evolución a ML sin tocar API</p></div>
-<div class="box"><h3>ADR-012</h3><p>Monorepo — simplicidad para equipo pequeño. Cada servicio con su Dockerfile y tests</p></div>
+<div class="box"><h3>ADR-002: Análisis independiente</h3><p>No dentro de la API. Escalado independiente. Evolución a ML sin tocar API ni frontend.</p></div>
+<div class="box"><h3>ADR-012: Monorepo</h3><p>Simplicidad para equipo pequeño. Cada servicio con Dockerfile y tests propios.</p></div>
 </div>
 </section>
 
@@ -134,20 +161,76 @@ Tren (sensores)
 <!-- 6. MODELO DE DATOS -->
 <section>
 <h2>Modelo de datos — ADR-004</h2>
-<div class="mono" style="font-size:0.55em;">
-<span style="color:#60a5fa">organizations</span> ──→ <span style="color:#4ade80">users</span> ──→ <span style="color:#4ade80">user_roles</span> ──→ <span style="color:#4ade80">roles</span> ──→ <span style="color:#4ade80">permissions</span>
-      │                                                    <span class="dim">RBAC (5 tablas, 10 permisos)</span>
-      ├──→ <span style="color:#fbbf24">inspection_systems</span> ──→ <span style="color:#fbbf24">journeys</span> ──→ <span style="color:#f87171">sensor_readings</span> <span class="dim">(hypertable)</span>
-      │                                        │
-      ├──→ <span style="color:#c084fc">thresholds</span> <span class="dim">(por org + métrica)</span>   ├──→ <span style="color:#f87171">alerts</span> <span class="dim">(segmentos pk_start–pk_end)</span>
-      │                                        │
-      └──→ <span class="dim">groups (futuro)</span>                └──→ <span class="dim">agg_readings_summary (continuous aggregate)</span>
+<div style="display:flex; gap:16px; justify-content:center; margin:12px 0; font-size:0.65em;">
+  <!-- RBAC -->
+  <div style="display:flex; flex-direction:column; gap:6px; align-items:center;">
+    <div style="font-size:0.8em; color:#4ade80; font-weight:600; margin-bottom:2px;">Autenticación y RBAC</div>
+    <div style="background:#14532d; border:1px solid #4ade80; border-radius:8px; padding:8px 14px; text-align:left; min-width:150px;">
+      <div style="color:#4ade80; font-weight:600;">users</div>
+      <div style="color:#86efac; font-size:0.85em;">email, name, password_hash</div>
+    </div>
+    <div style="color:#475569;">↕</div>
+    <div style="background:#14532d; border:1px solid #4ade80; border-radius:8px; padding:8px 14px; text-align:left; min-width:150px;">
+      <div style="color:#4ade80; font-weight:600;">user_roles</div>
+      <div style="color:#86efac; font-size:0.85em;">scope_type, scope_id</div>
+    </div>
+    <div style="color:#475569;">↕</div>
+    <div style="display:flex; gap:6px;">
+      <div style="background:#14532d; border:1px solid #4ade80; border-radius:8px; padding:8px 12px; text-align:center;">
+        <div style="color:#4ade80; font-weight:600;">roles</div>
+      </div>
+      <div style="color:#475569; align-self:center;">↔</div>
+      <div style="background:#14532d; border:1px solid #4ade80; border-radius:8px; padding:8px 12px; text-align:center;">
+        <div style="color:#4ade80; font-weight:600;">permissions</div>
+        <div style="color:#86efac; font-size:0.8em;">10 permisos</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ORGANIZATIONS (centro) -->
+  <div style="display:flex; flex-direction:column; align-items:center; justify-content:center;">
+    <div style="background:#1e3a5f; border:2px solid #60a5fa; border-radius:12px; padding:14px 20px; text-align:center; min-width:160px;">
+      <div style="color:#60a5fa; font-weight:700; font-size:1.1em;">organizations</div>
+      <div style="color:#7cb3f0; font-size:0.85em; margin-top:4px;">Multitenencia</div>
+      <div style="color:#94a3b8; font-size:0.75em;">saas / on_premise</div>
+    </div>
+    <div style="color:#475569; margin:6px 0;">↓</div>
+    <div style="background:#4a1d6a; border:1px solid #c084fc; border-radius:8px; padding:8px 14px; text-align:center;">
+      <div style="color:#c084fc; font-weight:600;">thresholds</div>
+      <div style="color:#d8b4fe; font-size:0.85em;">por org + métrica</div>
+      <div style="color:#94a3b8; font-size:0.75em;">warning / alert / critical</div>
+    </div>
+  </div>
+
+  <!-- Dispositivos y datos -->
+  <div style="display:flex; flex-direction:column; gap:6px; align-items:center;">
+    <div style="font-size:0.8em; color:#fbbf24; font-weight:600; margin-bottom:2px;">Dispositivos y trayectos</div>
+    <div style="background:#713f12; border:1px solid #fbbf24; border-radius:8px; padding:8px 14px; text-align:left; min-width:170px;">
+      <div style="color:#fbbf24; font-weight:600;">inspection_systems</div>
+      <div style="color:#d4a574; font-size:0.85em;">api_key, connection_status</div>
+    </div>
+    <div style="color:#475569;">↓</div>
+    <div style="background:#713f12; border:1px solid #fbbf24; border-radius:8px; padding:8px 14px; text-align:left; min-width:170px;">
+      <div style="color:#fbbf24; font-weight:600;">journeys</div>
+      <div style="color:#d4a574; font-size:0.85em;">trayectos dinámicos</div>
+    </div>
+    <div style="color:#475569;">↓</div>
+    <div style="display:flex; gap:6px;">
+      <div style="background:#7f1d1d; border:1px solid #f87171; border-radius:8px; padding:8px 12px; text-align:center;">
+        <div style="color:#f87171; font-weight:600;">sensor_readings</div>
+        <div style="color:#fca5a5; font-size:0.8em;">hypertable</div>
+      </div>
+      <div style="background:#7f1d1d; border:1px solid #f87171; border-radius:8px; padding:8px 12px; text-align:center;">
+        <div style="color:#f87171; font-weight:600;">alerts</div>
+        <div style="color:#fca5a5; font-size:0.8em;">pk_start → pk_end</div>
+      </div>
+    </div>
+  </div>
 </div>
-<br>
-<div class="grid-3">
-<div class="box"><h3>Multitenencia</h3><p>Todo filtrado por organizationId</p></div>
+<div class="grid-3" style="margin-top:8px;">
+<div class="box"><h3>Multitenencia</h3><p>Todo filtrado por organizationId automáticamente</p></div>
 <div class="box"><h3>Trayectos dinámicos</h3><p>La ruta emerge de las lecturas, no está predefinida</p></div>
-<div class="box"><h3>Alertas como segmentos</h3><p>pk_start – pk_end con coordenadas</p></div>
+<div class="box"><h3>Alertas como segmentos</h3><p>pk_start – pk_end con coordenadas GPS</p></div>
 </div>
 </section>
 

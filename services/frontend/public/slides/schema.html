@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>InspectRail — Esquema de BD</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #0f172a; color: #e2e8f0; font-family: system-ui, sans-serif; padding: 30px; }
+h1 { text-align: center; color: #60a5fa; font-size: 1.6em; margin-bottom: 24px; }
+.schema { display: flex; gap: 24px; justify-content: center; flex-wrap: wrap; max-width: 1200px; margin: 0 auto; }
+.group { background: #1e293b; border-radius: 12px; padding: 16px; min-width: 280px; flex: 1; }
+.group-title { font-size: 0.85em; font-weight: 700; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #334155; }
+.table { background: #0f172a; border-radius: 8px; padding: 10px 14px; margin-bottom: 10px; border-left: 3px solid; }
+.table-name { font-weight: 700; font-size: 0.9em; margin-bottom: 4px; }
+.table-type { font-size: 0.65em; opacity: 0.6; margin-left: 6px; }
+.cols { font-size: 0.72em; color: #94a3b8; }
+.col { margin: 2px 0; display: flex; justify-content: space-between; }
+.col-name { color: #cbd5e1; }
+.col-type { color: #64748b; font-family: monospace; font-size: 0.9em; }
+.pk { color: #fbbf24; }
+.fk { color: #60a5fa; }
+.rel { font-size: 0.7em; color: #475569; margin: 8px 0; text-align: center; }
+.rel-arrow { color: #60a5fa; }
+.badge { display: inline-block; padding: 1px 8px; border-radius: 10px; font-size: 0.65em; font-weight: 600; margin-left: 6px; }
+.badge-hyper { background: #7f1d1d; color: #fca5a5; }
+.badge-agg { background: #4a1d6a; color: #d8b4fe; }
+.badge-rel { background: #14532d; color: #86efac; }
+.badge-nm { background: #713f12; color: #fbbf24; }
+.note { text-align: center; color: #64748b; font-size: 0.75em; margin-top: 20px; }
+</style>
+</head>
+<body>
+
+<h1>InspectRail — Esquema de base de datos</h1>
+
+<div class="schema">
+
+<!-- GRUPO: Tenencia y RBAC -->
+<div class="group">
+<div class="group-title" style="color:#4ade80;">Tenencia y autenticacion</div>
+
+<div class="table" style="border-color:#60a5fa;">
+<div class="table-name" style="color:#60a5fa;">organizations <span class="badge badge-rel">relacional</span></div>
+<div class="cols">
+<div class="col"><span class="col-name"><span class="pk">id</span></span><span class="col-type">serial PK</span></div>
+<div class="col"><span class="col-name">name</span><span class="col-type">text</span></div>
+<div class="col"><span class="col-name">code</span><span class="col-type">text UNIQUE</span></div>
+<div class="col"><span class="col-name">deployment_mode</span><span class="col-type">enum (saas|on_premise)</span></div>
+<div class="col"><span class="col-name">config</span><span class="col-type">jsonb</span></div>
+<div class="col"><span class="col-name">active</span><span class="col-type">boolean</span></div>
+</div>
+</div>
+
+<div class="table" style="border-color:#4ade80;">
+<div class="table-name" style="color:#4ade80;">users <span class="badge badge-rel">relacional</span></div>
+<div class="cols">
+<div class="col"><span class="col-name"><span class="pk">id</span></span><span class="col-type">serial PK</span></div>
+<div class="col"><span class="col-name"><span class="fk">organization_id</span></span><span class="col-type">FK → organizations</span></div>
+<div class="col"><span class="col-name">email</span><span class="col-type">text UNIQUE</span></div>
+<div class="col"><span class="col-name">name</span><span class="col-type">text</span></div>
+<div class="col"><span class="col-name">password_hash</span><span class="col-type">text (bcrypt)</span></div>
+<div class="col"><span class="col-name">active</span><span class="col-type">boolean</span></div>
+</div>
+</div>
+
+<div class="table" style="border-color:#4ade80;">
+<div class="table-name" style="color:#4ade80;">roles <span class="badge badge-rel">relacional</span></div>
+<div class="cols">
+<div class="col"><span class="col-name"><span class="pk">id</span></span><span class="col-type">serial PK</span></div>
+<div class="col"><span class="col-name">name</span><span class="col-type">text UNIQUE</span></div>
+<div class="col"><span class="col-name">description</span><span class="col-type">text</span></div>
+<div class="col"><span class="col-name">is_system</span><span class="col-type">boolean</span></div>
+</div>
+</div>
+
+<div class="table" style="border-color:#4ade80;">
+<div class="table-name" style="color:#4ade80;">permissions <span class="badge badge-rel">relacional</span></div>
+<div class="cols">
+<div class="col"><span class="col-name"><span class="pk">id</span></span><span class="col-type">serial PK</span></div>
+<div class="col"><span class="col-name">code</span><span class="col-type">text UNIQUE</span></div>
+<div class="col"><span class="col-name">description</span><span class="col-type">text</span></div>
+</div>
+</div>
+
+<div class="table" style="border-color:#94a3b8;">
+<div class="table-name" style="color:#94a3b8;">role_permissions <span class="badge badge-nm">N:M</span></div>
+<div class="cols">
+<div class="col"><span class="col-name"><span class="fk">role_id</span></span><span class="col-type">FK → roles</span></div>
+<div class="col"><span class="col-name"><span class="fk">permission_id</span></span><span class="col-type">FK → permissions</span></div>
+</div>
+</div>
+
+<div class="table" style="border-color:#94a3b8;">
+<div class="table-name" style="color:#94a3b8;">user_roles <span class="badge badge-nm">N:M</span></div>
+<div class="cols">
+<div class="col"><span class="col-name"><span class="fk">user_id</span></span><span class="col-type">FK → users</span></div>
+<div class="col"><span class="col-name"><span class="fk">role_id</span></span><span class="col-type">FK → roles</span></div>
+<div class="col"><span class="col-name">scope_type</span><span class="col-type">text (nullable)</span></div>
+<div class="col"><span class="col-name">scope_id</span><span class="col-type">int (nullable)</span></div>
+</div>
+</div>
+</div>
+
+<!-- GRUPO: Dispositivos y trayectos -->
+<div class="group">
+<div class="group-title" style="color:#fbbf24;">Dispositivos y trayectos</div>
+
+<div class="table" style="border-color:#fbbf24;">
+<div class="table-name" style="color:#fbbf24;">inspection_systems <span class="badge badge-rel">relacional</span></div>
+<div class="cols">
+<div class="col"><span class="col-name"><span class="pk">id</span></span><span class="col-type">serial PK</span></div>
+<div class="col"><span class="col-name"><span class="fk">organization_id</span></span><span class="col-type">FK → organizations</span></div>
+<div class="col"><span class="col-name">name, code</span><span class="col-type">text</span></div>
+<div class="col"><span class="col-name">sensors_config</span><span class="col-type">jsonb</span></div>
+<div class="col"><span class="col-name">api_key</span><span class="col-type">text UNIQUE</span></div>
+<div class="col"><span class="col-name">api_secret_hash</span><span class="col-type">text (bcrypt)</span></div>
+<div class="col"><span class="col-name">connection_status</span><span class="col-type">enum</span></div>
+<div class="col"><span class="col-name">last_seen_at</span><span class="col-type">timestamptz</span></div>
+</div>
+</div>
+
+<div class="table" style="border-color:#fbbf24;">
+<div class="table-name" style="color:#fbbf24;">journeys <span class="badge badge-rel">relacional</span></div>
+<div class="cols">
+<div class="col"><span class="col-name"><span class="pk">id</span></span><span class="col-type">serial PK</span></div>
+<div class="col"><span class="col-name"><span class="fk">organization_id</span></span><span class="col-type">FK → organizations</span></div>
+<div class="col"><span class="col-name"><span class="fk">system_id</span></span><span class="col-type">FK → inspection_systems</span></div>
+<div class="col"><span class="col-name">name</span><span class="col-type">text</span></div>
+<div class="col"><span class="col-name">started_at, ended_at</span><span class="col-type">timestamptz</span></div>
+<div class="col"><span class="col-name">status</span><span class="col-type">enum (in_progress|completed|failed)</span></div>
+<div class="col"><span class="col-name">metadata</span><span class="col-type">jsonb</span></div>
+</div>
+</div>
+
+<div class="group-title" style="color:#c084fc; margin-top:16px;">Umbrales</div>
+
+<div class="table" style="border-color:#c084fc;">
+<div class="table-name" style="color:#c084fc;">thresholds <span class="badge badge-rel">relacional</span></div>
+<div class="cols">
+<div class="col"><span class="col-name"><span class="pk">id</span></span><span class="col-type">serial PK</span></div>
+<div class="col"><span class="col-name"><span class="fk">organization_id</span></span><span class="col-type">FK → organizations</span></div>
+<div class="col"><span class="col-name">metric</span><span class="col-type">enum (8 metricas)</span></div>
+<div class="col"><span class="col-name">warning_min, warning_max</span><span class="col-type">float</span></div>
+<div class="col"><span class="col-name">alert_min, alert_max</span><span class="col-type">float</span></div>
+<div class="col"><span class="col-name">critical_min, critical_max</span><span class="col-type">float</span></div>
+<div class="col"><span class="col-name" style="color:#64748b;">UNIQUE(organization_id, metric)</span><span class="col-type"></span></div>
+</div>
+</div>
+</div>
+
+<!-- GRUPO: Datos de sensores y alertas -->
+<div class="group">
+<div class="group-title" style="color:#f87171;">Datos de sensores y alertas</div>
+
+<div class="table" style="border-color:#f87171;">
+<div class="table-name" style="color:#f87171;">sensor_readings <span class="badge badge-hyper">hypertable TimescaleDB</span></div>
+<div class="cols">
+<div class="col"><span class="col-name"><span class="pk">time</span></span><span class="col-type">timestamptz PK</span></div>
+<div class="col"><span class="col-name"><span class="pk fk">journey_id</span></span><span class="col-type">int PK, FK → journeys</span></div>
+<div class="col"><span class="col-name">pk</span><span class="col-type">float (punto kilometrico)</span></div>
+<div class="col"><span class="col-name">latitude, longitude</span><span class="col-type">float</span></div>
+<div class="col"><span class="col-name">speed</span><span class="col-type">float</span></div>
+<div class="col"><span class="col-name">accel_vertical</span><span class="col-type">float</span></div>
+<div class="col"><span class="col-name">accel_lateral</span><span class="col-type">float</span></div>
+<div class="col"><span class="col-name">accel_longitudinal</span><span class="col-type">float</span></div>
+<div class="col"><span class="col-name">leveling</span><span class="col-type">float</span></div>
+<div class="col"><span class="col-name">alignment</span><span class="col-type">float</span></div>
+<div class="col"><span class="col-name">twist</span><span class="col-type">float</span></div>
+<div class="col"><span class="col-name">gauge</span><span class="col-type">float</span></div>
+</div>
+<div style="margin-top:6px; font-size:0.7em; color:#f87171;">Particionada por tiempo + indice (journey_id, pk)</div>
+<div style="font-size:0.7em; color:#94a3b8;">Compresion automatica ~95%</div>
+</div>
+
+<div class="table" style="border-color:#f87171;">
+<div class="table-name" style="color:#f87171;">alerts <span class="badge badge-rel">relacional</span></div>
+<div class="cols">
+<div class="col"><span class="col-name"><span class="pk">id</span></span><span class="col-type">serial PK</span></div>
+<div class="col"><span class="col-name"><span class="fk">organization_id</span></span><span class="col-type">FK → organizations</span></div>
+<div class="col"><span class="col-name"><span class="fk">journey_id</span></span><span class="col-type">FK → journeys</span></div>
+<div class="col"><span class="col-name">metric</span><span class="col-type">enum</span></div>
+<div class="col"><span class="col-name">severity</span><span class="col-type">enum (warning|alert|critical)</span></div>
+<div class="col"><span class="col-name">pk_start, pk_end</span><span class="col-type">float</span></div>
+<div class="col"><span class="col-name">lat_start, lon_start</span><span class="col-type">float</span></div>
+<div class="col"><span class="col-name">lat_end, lon_end</span><span class="col-type">float</span></div>
+<div class="col"><span class="col-name">measured_value</span><span class="col-type">float</span></div>
+<div class="col"><span class="col-name">threshold_value</span><span class="col-type">float</span></div>
+<div class="col"><span class="col-name">deviation</span><span class="col-type">float</span></div>
+<div class="col"><span class="col-name">detected_at</span><span class="col-type">timestamptz</span></div>
+</div>
+<div style="margin-top:6px; font-size:0.7em; color:#94a3b8;">Indices: (organization_id, severity), (journey_id), (detected_at)</div>
+</div>
+
+<div class="table" style="border-color:#c084fc; opacity:0.6;">
+<div class="table-name" style="color:#c084fc;">agg_readings_summary <span class="badge badge-agg">continuous aggregate</span></div>
+<div class="cols">
+<div class="col"><span class="col-name" style="color:#94a3b8;">avg/max/min por metrica, reading_count, alert_count</span></div>
+<div class="col"><span class="col-name" style="color:#64748b;">Diseñado, no implementado en prototipo</span></div>
+</div>
+</div>
+</div>
+
+</div>
+
+<div class="note">
+<p>11 tablas + 1 continuous aggregate | 5 enums | Todas las tablas principales tienen organization_id (multitenencia)</p>
+<p style="margin-top:8px;"><span style="color:#fbbf24;">PK</span> = Primary Key | <span style="color:#60a5fa;">FK</span> = Foreign Key | Esquema definido en <code>services/api/prisma/schema.prisma</code></p>
+</div>
+
+</body>
+</html>
