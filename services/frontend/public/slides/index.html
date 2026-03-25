@@ -282,22 +282,78 @@
 <!-- 9. ARQUITECTURA API -->
 <section>
 <h2>Arquitectura de la API</h2>
-<div class="mono" style="font-size:0.65em; text-align:center;">
-Schema .graphql  =  <span style="color:#60a5fa">Contrato del API</span> (equivale a DTOs)
-       ↓
-  <span style="color:#4ade80">Resolvers</span>      =  Controllers (delegan a services)
-       ↓
-  <span style="color:#fbbf24">Services</span>       =  Lógica de negocio
-       ↓
-  <span style="color:#c084fc">Prisma ORM</span>     =  Acceso a datos type-safe → PostgreSQL
+<div style="display:flex; flex-direction:column; align-items:center; gap:0; margin:16px 0;">
+  <!-- Schema -->
+  <div style="display:flex; align-items:center; gap:16px; width:700px;">
+    <div style="background:#1e3a5f; border:2px solid #60a5fa; border-radius:12px; padding:12px 24px; text-align:center; flex:1;">
+      <div style="color:#60a5fa; font-weight:700; font-size:0.9em;">Schema .graphql</div>
+      <div style="color:#7cb3f0; font-size:0.65em;">Contrato del API — equivale a DTOs</div>
+    </div>
+    <div style="color:#94a3b8; font-size:0.65em; min-width:140px; text-align:left;">
+      <div>journey.graphql</div>
+      <div>alert.graphql</div>
+      <div>sensorReading.graphql</div>
+      <div style="color:#475569;">... 10 archivos</div>
+    </div>
+  </div>
+  <div style="color:#475569; font-size:1.2em; margin:4px 0;">&#x2B07;</div>
+  <!-- Resolvers -->
+  <div style="display:flex; align-items:center; gap:16px; width:700px;">
+    <div style="background:#14532d; border:2px solid #4ade80; border-radius:12px; padding:12px 24px; text-align:center; flex:1;">
+      <div style="color:#4ade80; font-weight:700; font-size:0.9em;">Resolvers</div>
+      <div style="color:#86efac; font-size:0.65em;">Como Controllers — delegan a services</div>
+    </div>
+    <div style="color:#94a3b8; font-size:0.65em; min-width:140px; text-align:left;">
+      <div>journey.resolver.ts</div>
+      <div>alert.resolver.ts</div>
+      <div>auth.resolver.ts</div>
+      <div style="color:#475569;">... 9 resolvers</div>
+    </div>
+  </div>
+  <div style="color:#475569; font-size:1.2em; margin:4px 0;">&#x2B07;</div>
+  <!-- Services -->
+  <div style="display:flex; align-items:center; gap:16px; width:700px;">
+    <div style="background:#713f12; border:2px solid #fbbf24; border-radius:12px; padding:12px 24px; text-align:center; flex:1;">
+      <div style="color:#fbbf24; font-weight:700; font-size:0.9em;">Services</div>
+      <div style="color:#d4a574; font-size:0.65em;">Logica de negocio — filtros, paginacion, RBAC</div>
+    </div>
+    <div style="color:#94a3b8; font-size:0.65em; min-width:140px; text-align:left;">
+      <div>journey.service.ts</div>
+      <div>alert.service.ts</div>
+      <div>auth.service.ts</div>
+      <div style="color:#475569;">... 5 services</div>
+    </div>
+  </div>
+  <div style="color:#475569; font-size:1.2em; margin:4px 0;">&#x2B07;</div>
+  <!-- Prisma -->
+  <div style="display:flex; align-items:center; gap:16px; width:700px;">
+    <div style="background:#4a1d6a; border:2px solid #c084fc; border-radius:12px; padding:12px 24px; text-align:center; flex:1;">
+      <div style="color:#c084fc; font-weight:700; font-size:0.9em;">Prisma ORM</div>
+      <div style="color:#d8b4fe; font-size:0.65em;">Acceso type-safe a PostgreSQL + TimescaleDB</div>
+    </div>
+    <div style="color:#94a3b8; font-size:0.65em; min-width:140px; text-align:left;">
+      <div>schema.prisma</div>
+      <div style="color:#475569;">Type-safe queries</div>
+      <div style="color:#475569;">Migrations</div>
+    </div>
+  </div>
 </div>
-<br>
-<div class="grid-3">
-<div class="box"><h3 style="color:#f87171">NestJS ❌</h3><p>Over-engineering para el alcance del proyecto</p></div>
-<div class="box"><h3 style="color:#4ade80">Schema-first ✅</h3><p>Capa de servicios, separación clara</p></div>
-<div class="box"><h3 style="color:#f87171">Resolvers→Prisma ❌</h3><p>Mezcla lógica con resolución de datos</p></div>
+<!-- Alternativas -->
+<div style="display:flex; gap:12px; justify-content:center; margin-top:12px;">
+  <div style="background:#7f1d1d; border:1px solid #f87171; border-radius:8px; padding:8px 16px; text-align:center;">
+    <div style="color:#f87171; font-weight:600; font-size:0.75em;">NestJS ❌</div>
+    <div style="color:#fca5a5; font-size:0.6em;">Over-engineering</div>
+  </div>
+  <div style="background:#14532d; border:2px solid #4ade80; border-radius:8px; padding:8px 16px; text-align:center;">
+    <div style="color:#4ade80; font-weight:600; font-size:0.75em;">Schema-first + Services ✅</div>
+    <div style="color:#86efac; font-size:0.6em;">Separacion clara</div>
+  </div>
+  <div style="background:#7f1d1d; border:1px solid #f87171; border-radius:8px; padding:8px 16px; text-align:center;">
+    <div style="color:#f87171; font-weight:600; font-size:0.75em;">Resolvers→Prisma ❌</div>
+    <div style="color:#fca5a5; font-size:0.6em;">Mezcla responsabilidades</div>
+  </div>
 </div>
-<p class="fragment subtitle">ADR-007: Prisma elegido sobre TypeORM (config compleja), Drizzle (inmaduro), Knex (sin type-safety)</p>
+<p class="fragment subtitle" style="margin-top:10px;">ADR-007: Prisma sobre TypeORM (config compleja), Drizzle (inmaduro), Knex (sin type-safety)</p>
 </section>
 
 <!-- 10. SEGURIDAD -->
