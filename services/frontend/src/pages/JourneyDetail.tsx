@@ -8,8 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
 import { SeverityBadge } from '@/components/domain/SeverityBadge';
+import { StatusBadge } from '@/components/domain/StatusBadge';
 import { MetricLabel } from '@/components/domain/MetricLabel';
-import { KpiCard } from '@/components/domain/KpiCard';
 import { PageHeader } from '@/components/domain/PageHeader';
 
 const chartMetrics = ['leveling', 'alignment', 'twist', 'gauge', 'accelVertical', 'accelLateral', 'speed'];
@@ -58,11 +58,11 @@ export function JourneyDetail() {
       <PageHeader title={j.name} breadcrumbs={[{ label: 'Trayectos', to: '/journeys' }]} />
 
       {/* Info */}
-      <div className="grid grid-cols-4 gap-4 mb-6">
-        <KpiCard label="Sistema" value={`${j.system.code}`} sub={j.system.name} />
-        <KpiCard label="Estado" value={j.status} />
-        <KpiCard label="Inicio" value={new Date(j.startedAt).toLocaleString('es-ES', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })} />
-        <KpiCard label="Fin" value={j.endedAt ? new Date(j.endedAt).toLocaleString('es-ES', { hour: '2-digit', minute: '2-digit' }) : 'En curso'} />
+      <div className="flex items-center gap-6 mb-6 text-sm">
+        <div><span className="text-muted-foreground">Sistema:</span> <code className="bg-muted px-1.5 py-0.5 rounded text-xs">{j.system.code}</code> {j.system.name}</div>
+        <div><span className="text-muted-foreground">Estado:</span> <StatusBadge status={j.status} /></div>
+        <div><span className="text-muted-foreground">Inicio:</span> {new Date(j.startedAt).toLocaleString('es-ES', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</div>
+        <div><span className="text-muted-foreground">Fin:</span> {j.endedAt ? new Date(j.endedAt).toLocaleString('es-ES', { hour: '2-digit', minute: '2-digit' }) : 'En curso'}</div>
       </div>
 
       {/* Mapa */}
