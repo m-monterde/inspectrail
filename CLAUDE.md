@@ -7,7 +7,7 @@ Es un reto técnico para un proceso de selección de Ingeniero Full Stack. El ob
 ## Estado actual
 - **Fase de diseño**: COMPLETADA. 12 ADRs documentadas en `docs/decisiones_arquitectonicas.docx`
 - **Fase de desarrollo**: BD + API + Frontend + Deploy COMPLETADOS
-- **Repositorio**: github.com/m-monterde/inspectrail (privado, cuenta m-monterde)
+- **Repositorio**: github.com/m-monterde/inspectrail (público, cuenta m-monterde)
 - **Demo live**: https://inspectrail.duckdns.org
 - **VPS**: Hetzner 204.168.173.222, usuario `deploy`, acceso SSH por clave
 - **Versión actual**: v0.2.0
