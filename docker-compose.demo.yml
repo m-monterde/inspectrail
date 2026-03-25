@@ -1,0 +1,56 @@
+# InspectRail — Demo local (solo Docker, sin instalar nada más)
+#
+# Uso:
+#   docker compose -f docker-compose.demo.yml up -d
+#   Abrir http://localhost:8080
+#   Login: admin@inspectrail.demo / demo1234
+#
+# Primera vez: ejecutar migraciones y seed:
+#   docker compose -f docker-compose.demo.yml exec api npx prisma migrate deploy
+#   docker compose -f docker-compose.demo.yml exec api npx tsx prisma/seed.ts
+
+services:
+  database:
+    image: timescale/timescaledb-ha:pg16
+    container_name: inspectrail-db
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: inspectrail
+      POSTGRES_USER: inspectrail
+      POSTGRES_PASSWORD: inspectrail_dev
+    volumes:
+      - db_data:/home/postgres/pgdata/data
+      - ./devops/docker/init-db.sql:/docker-entrypoint-initdb.d/01-init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U inspectrail"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    image: ghcr.io/m-monterde/inspectrail-api:latest
+    container_name: inspectrail-api
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://inspectrail:inspectrail_dev@database:5432/inspectrail
+      JWT_SECRET: demo_secret
+      ENVIRONMENT: development
+    depends_on:
+      database:
+        condition: service_healthy
+
+  frontend:
+    image: ghcr.io/m-monterde/inspectrail-frontend:latest
+    container_name: inspectrail-frontend
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    depends_on:
+      - api
+
+volumes:
+  db_data:

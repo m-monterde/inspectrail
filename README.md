@@ -25,12 +25,36 @@ proyecto/
 └── .github/workflows/             # CI/CD (GitHub Actions)
 ```
 
-## Requisitos
+## Demo rápida (solo Docker)
+
+Si solo quieres probar la plataforma sin instalar Node.js:
+
+```bash
+git clone https://github.com/m-monterde/inspectrail.git
+cd inspectrail
+
+# Levantar todo
+docker compose -f docker-compose.demo.yml up -d
+
+# Esperar ~20s a que la BD esté healthy, luego:
+docker compose -f docker-compose.demo.yml exec api npx prisma migrate deploy
+docker compose -f docker-compose.demo.yml exec api npx tsx prisma/seed.ts
+```
+
+Abrir http://localhost:8080 — Login: **admin@inspectrail.demo** / **demo1234**
+
+Para parar: `docker compose -f docker-compose.demo.yml down`
+
+---
+
+## Desarrollo local
+
+### Requisitos
 
 - **Node.js 22** (recomendado via nvm)
 - **Docker** (para TimescaleDB)
 
-## Levantar en local
+### Levantar en local
 
 ### 1. Clonar y entrar
 
