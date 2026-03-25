@@ -85,7 +85,6 @@ export function AlertDetail() {
           { label: alert.journey.name, to: `/journeys/${alert.journey.id}` },
         ] : [
           { label: 'Alertas', to: '/alerts' },
-          { label: alert.journey.name, to: `/journeys/${alert.journey.id}` },
         ]}
       />
 
