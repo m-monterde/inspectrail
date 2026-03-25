@@ -98,7 +98,19 @@ Si preguntan por detalle: abrir /slides/schema.html con el esquema completo.
 
 ---
 
-## Slide 10 — ADR-006: LISTEN/NOTIFY
+## Slide 10 — ADR-007: Prisma Migrate + Seed
+
+"Prisma Migrate gestiona el versionado del esquema de BD. Cada cambio se guarda como una migración SQL versionada — cuando despliegas, `prisma migrate deploy` aplica solo las pendientes. Esto garantiza que la BD es idéntica en desarrollo, test y producción."
+
+"Hay dos tipos de migraciones: las automáticas que genera Prisma a partir del schema.prisma, y las manuales para cosas específicas de TimescaleDB (crear la hypertable, configurar compresión) que Prisma no puede generar."
+
+"El seed es un script TypeScript que genera datos de demo reproducibles. Incluye rutas reales vascas con 32 waypoints, 10.000 lecturas de sensores en el trayecto principal, y anomalías inyectadas con forma de campana para que las alertas sean realistas."
+
+"Esto permite que cualquiera levante la demo completa con un solo comando — clone el repo, levante Docker, ejecute migraciones y seed, y tiene datos realistas para probar."
+
+---
+
+## Slide 11 — ADR-006: LISTEN/NOTIFY
 
 "Para alertas en tiempo real, la solución obvia sería Redis Pub/Sub o RabbitMQ. Pero ambos añaden infraestructura que hay que mantener."
 
@@ -108,7 +120,7 @@ Si preguntan por detalle: abrir /slides/schema.html con el esquema completo.
 
 ---
 
-## Slide 11 — ADR-008: Por qué WebGL
+## Slide 12 — ADR-008: Por qué WebGL
 
 "Esta es una de las decisiones más importantes del frontend. Con SVG/DOM, cada punto es un elemento HTML — con 10.000 ya va lento, con 100.000 se congela."
 
@@ -118,7 +130,7 @@ Si preguntan por detalle: abrir /slides/schema.html con el esquema completo.
 
 ---
 
-## Slide 12 — ADR-008: Leaflet vs MapLibre
+## Slide 13 — ADR-008: Leaflet vs MapLibre
 
 "Leaflet es SVG — no sirve para datos densos. MapLibre GL JS es WebGL, open-source (BSD), gratuito, y soporta PMTiles — archivos de tiles locales para el modo on-premise (sin internet en el tren)."
 
@@ -126,7 +138,7 @@ Si preguntan por detalle: abrir /slides/schema.html con el esquema completo.
 
 ---
 
-## Slide 13 — ADR-008: Gráficas
+## Slide 14 — ADR-008: Gráficas
 
 "Mismo principio. Recharts usa SVG — 10K puntos máximo. Chart.js usa Canvas pero sin downsampling ni zoom nativo."
 
@@ -134,7 +146,7 @@ Si preguntan por detalle: abrir /slides/schema.html con el esquema completo.
 
 ---
 
-## Slide 14 — ADR-008: Rendimiento frontend
+## Slide 15 — ADR-008: Rendimiento frontend
 
 "Dos técnicas implementadas."
 
@@ -146,7 +158,7 @@ Si preguntan por detalle: abrir /slides/schema.html con el esquema completo.
 
 ---
 
-## Slide 15 — ADR-009: DevOps
+## Slide 16 — ADR-009: DevOps
 
 "GitHub Actions porque es zero-infra. Se evaluó Drone CI (self-hosted) pero añade complejidad."
 
@@ -158,7 +170,7 @@ Si preguntan por detalle: abrir /slides/schema.html con el esquema completo.
 
 ---
 
-## Slide 16 — ADR-010 + ADR-011: Deploy
+## Slide 17 — ADR-010 + ADR-011: Deploy
 
 "Traefik como proxy inverso: descubre servicios automáticamente leyendo labels de Docker. HTTPS con Let's Encrypt integrado. Nginx es mejor para on-premise (sin internet, config estática)."
 
@@ -166,19 +178,19 @@ Si preguntan por detalle: abrir /slides/schema.html con el esquema completo.
 
 ---
 
-## Slide 17 — Seguridad
+## Slide 18 — Seguridad
 
 "JWT stateless — no se almacena estado de sesión. RBAC con 10 permisos granulares. Multitenencia: filtrado automático por organizationId. HTTPS con Let's Encrypt. Secrets fuera del repo."
 
 ---
 
-## Slide 18 — Evolución
+## Slide 19 — Evolución
 
 "Cuatro ejes: datos (compresión, aggregates, downsampling), ML (Python preparado, de umbrales a modelos), on-premise (Docker save, tiles locales), observabilidad (Prometheus+Grafana a un docker-compose de distancia)."
 
 ---
 
-## Slide 19 — Demo
+## Slide 20 — Demo
 
 Abrir https://inspectrail.duckdns.org. Login con admin@inspectrail.demo / demo1234.
 
@@ -192,6 +204,6 @@ Abrir https://inspectrail.duckdns.org. Login con admin@inspectrail.demo / demo12
 
 ---
 
-## Slide 20 — Cierre
+## Slide 21 — Cierre
 
 "El código está en GitHub, la demo está online, y hay 12 ADRs con todas las alternativas evaluadas. ¿Preguntas?"

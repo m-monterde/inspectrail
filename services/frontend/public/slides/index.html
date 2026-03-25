@@ -300,6 +300,44 @@
 <p class="fragment subtitle" style="margin-top:6px;">Prisma sobre TypeORM (config compleja), Drizzle (inmaduro), Knex (sin type-safety)</p>
 </section>
 
+<!-- ==================== ADR-007: PRISMA MIGRATE + SEED ==================== -->
+<section>
+<h2><span class="adr-num">ADR-007</span> Prisma: versionado de BD y datos de demo</h2>
+<h3>Problema: gestionar cambios de esquema y datos reproducibles</h3>
+<div class="vs">
+<div class="box">
+<h3>Prisma Migrate — versionado de esquema</h3>
+<div class="mono" style="font-size:0.65em;">
+prisma/migrations/
+├── 20260324_init/
+│   └── migration.sql      <span class="dim">← tablas de dominio</span>
+└── 20260324_timescale/
+    └── migration.sql      <span class="dim">← hypertable + compresión</span>
+</div>
+<ul>
+<li>Cada cambio de BD = una migración versionada</li>
+<li><code>prisma migrate deploy</code> en CI/CD</li>
+<li>Migraciones auto (Prisma) + manuales (TimescaleDB)</li>
+<li>Reproducible: misma BD en dev, test y prod</li>
+</ul>
+</div>
+<div class="box">
+<h3>Seed — datos de demo reproducibles</h3>
+<div class="mono" style="font-size:0.65em;">
+npx tsx prisma/seed.ts
+</div>
+<ul>
+<li>1 org, 2 usuarios, 2 sistemas, 4 trayectos</li>
+<li><span class="highlight">11.800 lecturas</span> con rutas reales vascas</li>
+<li>Trayecto principal: <span class="highlight">10.000 puntos</span> Donostia→Bilbao</li>
+<li>31 alertas generadas por análisis de umbrales</li>
+<li>Anomalías inyectadas con forma de campana</li>
+<li>Cualquiera puede levantar la demo con un comando</li>
+</ul>
+</div>
+</div>
+</section>
+
 <!-- ==================== ADR-006: LISTEN/NOTIFY ==================== -->
 <section>
 <h2><span class="adr-num">ADR-006</span> Alertas en vivo</h2>
