@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { SeverityBadge } from '@/components/domain/SeverityBadge';
 import { MetricLabel } from '@/components/domain/MetricLabel';
-import { KpiCard } from '@/components/domain/KpiCard';
 import { PageHeader } from '@/components/domain/PageHeader';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -17,12 +16,10 @@ export function Dashboard() {
   if (loading) return (
     <div>
       <PageHeader title="Dashboard" />
-      <div className="grid grid-cols-4 gap-4 mb-6">
-        {[1,2,3,4].map(i => <Skeleton key={i} className="h-24 rounded-lg" />)}
-      </div>
-      <div className="grid grid-cols-2 gap-4 mb-6">
-        <Skeleton className="h-56 rounded-lg" />
-        <Skeleton className="h-56 rounded-lg" />
+      <div className="grid grid-cols-3 gap-4 mb-6">
+        <Skeleton className="h-52 rounded-lg" />
+        <Skeleton className="h-52 rounded-lg" />
+        <Skeleton className="h-52 rounded-lg" />
       </div>
       <Skeleton className="h-64 rounded-lg" />
     </div>
@@ -30,48 +27,58 @@ export function Dashboard() {
   if (error) return <div className="text-destructive">Error: {error.message}</div>;
 
   const stats = data.dashboardStats;
+  const totalAlerts = stats.alertCounts.warning + stats.alertCounts.alert + stats.alertCounts.critical;
 
   return (
     <div>
       <PageHeader title="Dashboard" />
 
-      {/* KPIs */}
-      <div className="grid grid-cols-4 gap-4 mb-6">
-        <KpiCard label="Sistemas" value={stats.totalSystems} sub={`${stats.connectedSystems} conectados`} />
-        <KpiCard label="Trayectos" value={stats.totalJourneys} sub={`${stats.activeJourneys} en curso`} />
-        <KpiCard label="Alertas Warning" value={stats.alertCounts.warning} accent="warning" />
-        <KpiCard label="Alertas Critical" value={stats.alertCounts.critical} accent="critical" />
-      </div>
-
-      {/* Severity summary */}
+      {/* Top row: KPIs + charts */}
       <div className="grid grid-cols-3 gap-4 mb-6">
-        <Card className="border-l-4 border-l-amber-400 bg-amber-50">
-          <CardContent className="p-4">
-            <p className="text-sm font-medium text-amber-800">Warning</p>
-            <p className="text-3xl font-bold text-amber-900 mt-1">{stats.alertCounts.warning}</p>
-          </CardContent>
-        </Card>
-        <Card className="border-l-4 border-l-orange-400 bg-orange-50">
-          <CardContent className="p-4">
-            <p className="text-sm font-medium text-orange-800">Alert</p>
-            <p className="text-3xl font-bold text-orange-900 mt-1">{stats.alertCounts.alert}</p>
-          </CardContent>
-        </Card>
-        <Card className="border-l-4 border-l-red-500 bg-red-50">
-          <CardContent className="p-4">
-            <p className="text-sm font-medium text-red-800">Critical</p>
-            <p className="text-3xl font-bold text-red-900 mt-1">{stats.alertCounts.critical}</p>
-          </CardContent>
-        </Card>
-      </div>
 
-      {/* Charts */}
-      <div className="grid grid-cols-2 gap-4 mb-6">
+        {/* KPIs */}
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-muted-foreground font-medium">Resumen</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <span className="text-sm">Sistemas</span>
+              <span className="font-bold">{stats.totalSystems} <span className="text-xs font-normal text-muted-foreground">({stats.connectedSystems} conectados)</span></span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm">Trayectos</span>
+              <span className="font-bold">{stats.totalJourneys} <span className="text-xs font-normal text-muted-foreground">({stats.activeJourneys} en curso)</span></span>
+            </div>
+            <div className="border-t pt-3 mt-3 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-sm">Total alertas</span>
+                <span className="font-bold">{totalAlerts}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <SeverityBadge severity="critical" />
+                <span className="font-bold text-red-700">{stats.alertCounts.critical}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <SeverityBadge severity="alert" />
+                <span className="font-bold text-orange-700">{stats.alertCounts.alert}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <SeverityBadge severity="warning" />
+                <span className="font-bold text-amber-700">{stats.alertCounts.warning}</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Donut chart */}
         <Card>
           <CardContent className="p-4">
-            <AlertsBySeverityChart alerts={stats.recentAlerts} />
+            <AlertsBySeverityChart counts={stats.alertCounts} />
           </CardContent>
         </Card>
+
+        {/* Bar chart */}
         <Card>
           <CardContent className="p-4">
             <AlertsByMetricChart alerts={stats.recentAlerts} />
@@ -79,7 +86,7 @@ export function Dashboard() {
         </Card>
       </div>
 
-      {/* Recent alerts */}
+      {/* Recent alerts table */}
       <Card>
         <CardHeader>
           <CardTitle>Alertas recientes</CardTitle>
@@ -124,10 +131,7 @@ export function Dashboard() {
   );
 }
 
-function AlertsBySeverityChart({ alerts }: { alerts: any[] }) {
-  const counts: Record<string, number> = { warning: 0, alert: 0, critical: 0 };
-  alerts.forEach((a: any) => { counts[a.severity] = (counts[a.severity] || 0) + 1; });
-
+function AlertsBySeverityChart({ counts }: { counts: { warning: number; alert: number; critical: number } }) {
   const option = {
     title: { text: 'Alertas por severidad', textStyle: { fontSize: 13, fontWeight: 500, color: '#334155' } },
     tooltip: { trigger: 'item' as const },
@@ -141,7 +145,7 @@ function AlertsBySeverityChart({ alerts }: { alerts: any[] }) {
       label: { fontSize: 11 },
     }],
   };
-  return <ReactECharts option={option} style={{ height: 200 }} notMerge />;
+  return <ReactECharts option={option} style={{ height: 220 }} notMerge />;
 }
 
 function AlertsByMetricChart({ alerts }: { alerts: any[] }) {
@@ -161,5 +165,5 @@ function AlertsByMetricChart({ alerts }: { alerts: any[] }) {
     yAxis: { type: 'value' as const, axisLabel: { fontSize: 10 }, minInterval: 1 },
     series: [{ type: 'bar', data: metrics.map(m => counts[m]), itemStyle: { color: '#3b82f6', borderRadius: [4, 4, 0, 0] } }],
   };
-  return <ReactECharts option={option} style={{ height: 200 }} notMerge />;
+  return <ReactECharts option={option} style={{ height: 220 }} notMerge />;
 }
