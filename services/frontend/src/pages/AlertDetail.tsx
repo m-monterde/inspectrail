@@ -1,5 +1,5 @@
 import { useQuery } from '@apollo/client/react';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import { GET_ALERT, GET_SENSOR_READINGS, GET_THRESHOLDS } from '@/graphql/queries';
 import { SensorChart } from '@/components/charts/SensorChart';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -29,6 +29,8 @@ const readingKeyToThresholdMetric: Record<string, string> = {
 export function AlertDetail() {
   const { id } = useParams<{ id: string }>();
   const alertId = parseInt(id!, 10);
+  const location = useLocation();
+  const fromJourney = (location.state as any)?.from === 'journey';
 
   const { data, loading, error } = useQuery<any>(GET_ALERT, { variables: { id: alertId } });
   const { data: thresholdData } = useQuery<any>(GET_THRESHOLDS);
@@ -78,7 +80,10 @@ export function AlertDetail() {
     <div>
       <PageHeader
         title={`Alerta ${metricLabels[alert.metric] || alert.metric}`}
-        breadcrumbs={[
+        breadcrumbs={fromJourney ? [
+          { label: 'Trayectos', to: '/journeys' },
+          { label: alert.journey.name, to: `/journeys/${alert.journey.id}` },
+        ] : [
           { label: 'Alertas', to: '/alerts' },
           { label: alert.journey.name, to: `/journeys/${alert.journey.id}` },
         ]}

@@ -164,7 +164,7 @@ export function JourneyDetail() {
               </TableHeader>
               <TableBody>
                 {j.alerts.map((a: any) => (
-                  <TableRow key={a.id} className="cursor-pointer hover:bg-muted/50" onClick={() => navigate(`/alerts/${a.id}`)}>
+                  <TableRow key={a.id} className="cursor-pointer hover:bg-muted/50" onClick={() => navigate(`/alerts/${a.id}`, { state: { from: 'journey', journeyId: j.id, journeyName: j.name } })}>
                     <TableCell><SeverityBadge severity={a.severity} /></TableCell>
                     <TableCell><MetricLabel metric={a.metric} /></TableCell>
                     <TableCell className="font-mono text-xs">{a.pkStart.toFixed(2)} - {a.pkEnd.toFixed(2)} km</TableCell>
