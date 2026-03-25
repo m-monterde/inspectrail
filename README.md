@@ -2,57 +2,139 @@
 
 Plataforma centralizada de monitorización de infraestructura ferroviaria.
 
+**Demo live:** https://inspectrail.duckdns.org
+**Credenciales:** admin@inspectrail.demo / demo1234
+
 ## Estructura del proyecto
 
 ```
 proyecto/
-├── docs/                          # Documentación
-│   ├── decisiones_arquitectonicas.docx   # Registro de decisiones (ADR)
-│   └── documentacion_proyecto.docx       # Documentación técnica del proyecto
+├── docs/
+│   ├── decisiones_arquitectonicas.docx   # 12 ADRs documentadas
+│   ├── documentacion_proyecto.docx       # Documentación técnica completa
+│   └── notas_presentacion.md             # Guion de la presentación
 ├── services/
 │   ├── database/                  # Base de datos (PostgreSQL + TimescaleDB + PostGIS)
-│   ├── ingesta/                   # Servicio de ingesta de datos de sensores (Python)
-│   ├── analisis/                  # Servicio de análisis y alertas (Python)
 │   ├── api/                       # API Backend (Node.js + TypeScript + GraphQL)
-│   └── frontend/                  # Aplicación web (React + Vite + MapLibre + ECharts)
-├── devops/                        # CI/CD, Docker, monitorización
-└── retotecnico.pdf                # Enunciado del reto
+│   ├── frontend/                  # Aplicación web (React + Vite + MapLibre + ECharts)
+│   ├── ingesta/                   # Servicio de ingesta (Python) — diseñado, no implementado
+│   └── analisis/                  # Servicio de análisis (Python) — diseñado, no implementado
+├── devops/
+│   ├── docker/                    # Docker Compose (dev + prod)
+│   └── scripts/                   # Scripts de deploy y setup
+└── .github/workflows/             # CI/CD (GitHub Actions)
 ```
+
+## Requisitos
+
+- **Node.js 22** (recomendado via nvm)
+- **Docker** (para TimescaleDB)
+
+## Levantar en local
+
+### 1. Clonar y entrar
+
+```bash
+git clone https://github.com/m-monterde/inspectrail.git
+cd inspectrail
+```
+
+### 2. Levantar la base de datos
+
+```bash
+docker compose -f devops/docker/docker-compose.yml up -d database
+```
+
+Esperar a que esté healthy (~15 segundos):
+```bash
+docker ps  # debe mostrar (healthy) en inspectrail-db
+```
+
+### 3. Configurar la API
+
+```bash
+cd services/api
+npm install
+
+# Crear .env
+cat > .env << 'EOF'
+DATABASE_URL="postgresql://inspectrail:inspectrail_dev@localhost:5432/inspectrail"
+JWT_SECRET=dev_secret_change_in_production
+ENVIRONMENT=development
+EOF
+
+# Ejecutar migraciones y seed
+npx prisma migrate deploy
+npx prisma generate
+npx tsx prisma/seed.ts
+```
+
+El seed crea:
+- 1 organización, 2 usuarios, 2 sistemas de inspección
+- 4 trayectos con rutas reales vascas (Donostia-Bilbao, Vitoria-Pamplona)
+- 11.800 lecturas de sensores (10.000 en el trayecto principal)
+- 31 alertas generadas por análisis de umbrales
+
+### 4. Arrancar la API
+
+```bash
+npm run dev
+```
+
+La API estará en http://localhost:3000. Puedes probarla:
+```bash
+curl -s -X POST http://localhost:3000/ \
+  -H "Content-Type: application/json" \
+  -d '{"query":"mutation { login(email: \"admin@inspectrail.demo\", password: \"demo1234\") { token } }"}'
+```
+
+### 5. Arrancar el frontend
+
+En otra terminal:
+```bash
+cd services/frontend
+npm install
+npm run dev
+```
+
+Abrir http://localhost:8080 en el navegador. Login con:
+- **admin@inspectrail.demo** / demo1234 (todos los permisos)
+- **operador@inspectrail.demo** / demo1234 (solo lectura)
+
+## Presentación técnica
+
+Disponible en http://localhost:8080/slides/index.html (local) o https://inspectrail.duckdns.org/slides (producción).
+
+Navegar con flechas. F = pantalla completa. S = notas del presentador.
 
 ## Estado actual
 
-| Componente | Estado |
-|------------|--------|
-| Base de datos | Modelo de datos definido (ADR-001, ADR-004) |
-| Ingesta | Tecnología definida: Python (ADR-002, ADR-003) |
-| Análisis | Tecnología definida: Python (ADR-002, ADR-003) |
-| API Backend | Node.js + TypeScript + GraphQL (ADR-005) |
-| Frontend | React + Vite + MapLibre + ECharts (ADR-008) |
-| DevOps | GitHub Actions + Docker Compose + Prometheus/Grafana (ADR-009) |
+| Componente | Estado | Tecnología |
+|------------|--------|------------|
+| Base de datos | Completado | PostgreSQL 16 + TimescaleDB + PostGIS |
+| API Backend | Completado | Node.js + TypeScript + Apollo Server + Prisma |
+| Frontend | Completado | React 19 + Vite + Tailwind + ECharts + MapLibre GL |
+| CI/CD | Completado | GitHub Actions + Docker + ghcr.io |
+| Deploy | Completado | VPS Hetzner + Traefik + HTTPS (Let's Encrypt) |
+| Ingesta | Diseñado | Python (asyncio + FastAPI) |
+| Análisis | Diseñado | Python (NumPy, SciPy) |
+| Observabilidad | Diseñado | Prometheus + Grafana + Loki |
 
-## Decisiones arquitectónicas
+## Decisiones arquitectónicas (12 ADRs)
 
 | ADR | Decisión |
 |-----|----------|
 | ADR-001 | PostgreSQL + TimescaleDB con particionamiento tiempo + PK |
 | ADR-002 | Servicio de análisis independiente (no integrado en la API) |
-| ADR-003 | Python para ingesta y análisis (un solo lenguaje, cohesión de equipo) |
-| ADR-004 | Multitenencia, modelo de datos definitivo y nomenclatura en inglés |
-| ADR-005 | API Backend: Node.js + TypeScript + GraphQL (Apollo Server, Prisma) |
+| ADR-003 | Python para ingesta y análisis (un solo lenguaje) |
+| ADR-004 | Multitenencia, modelo de datos y nomenclatura en inglés |
+| ADR-005 | API: Node.js + TypeScript + GraphQL (Apollo Server, Prisma) |
 | ADR-006 | Comunicación análisis → API: PostgreSQL LISTEN/NOTIFY (sin Redis) |
-| ADR-007 | ORM y versionado de BD: Prisma + Prisma Migrate |
-| ADR-008 | Frontend: React + Vite + MapLibre GL (WebGL) + ECharts + Tailwind/shadcn |
-| ADR-009 | DevOps: GitHub Actions + Docker Compose + Prometheus/Grafana/Loki |
-| ADR-010 | Demo: VPS Hetzner (principal) + GitHub Codespaces (backup) |
-| ADR-011 | Entornos: dev híbrido, tests con testcontainers, staging en mismo VPS |
-| ADR-012 | Monorepo: todo en un repo, cada servicio con su Dockerfile y tests |
+| ADR-007 | ORM: Prisma + Prisma Migrate |
+| ADR-008 | Frontend: React + Vite + MapLibre GL (WebGL) + ECharts + Tailwind |
+| ADR-009 | DevOps: GitHub Actions + Docker Compose |
+| ADR-010 | Demo: VPS Hetzner + DuckDNS |
+| ADR-011 | Entornos: dev híbrido, tests con testcontainers, staging/prod |
+| ADR-012 | Monorepo |
 
-## Cómo ejecutar
-
-```bash
-# Levantar todos los servicios
-docker compose -f devops/docker/docker-compose.yml up
-
-# Solo base de datos
-docker compose -f devops/docker/docker-compose.yml up database
-```
+Detalle completo en `docs/decisiones_arquitectonicas.docx`.
