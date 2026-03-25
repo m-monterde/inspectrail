@@ -8,7 +8,7 @@ Plataforma centralizada de monitorización de infraestructura ferroviaria.
 ## Estructura del proyecto
 
 ```
-proyecto/
+inspectrail/
 ├── docs/
 │   ├── decisiones_arquitectonicas.docx   # 12 ADRs documentadas
 │   ├── documentacion_proyecto.docx       # Documentación técnica completa
@@ -22,59 +22,64 @@ proyecto/
 ├── devops/
 │   ├── docker/                    # Docker Compose (dev + prod)
 │   └── scripts/                   # Scripts de deploy y setup
+├── docker-compose.demo.yml        # Demo local con un solo comando
 └── .github/workflows/             # CI/CD (GitHub Actions)
 ```
 
-## Demo rápida (solo Docker)
+## Ejecutar en local
 
-Si solo quieres probar la plataforma sin instalar Node.js:
+Hay dos formas de levantar el proyecto en local según lo que necesites:
+
+### Opcion A: Solo probar (solo Docker)
+
+Para ver la plataforma funcionando sin instalar Node.js ni dependencias. Solo necesitas **Docker**.
 
 ```bash
 git clone https://github.com/m-monterde/inspectrail.git
 cd inspectrail
 
-# Levantar todo
+# 1. Levantar los 3 servicios (BD + API + Frontend)
 docker compose -f docker-compose.demo.yml up -d
 
-# Esperar ~20s a que la BD esté healthy, luego:
+# 2. Esperar ~20 segundos a que la BD esté lista
+docker ps   # inspectrail-db debe mostrar (healthy)
+
+# 3. Crear las tablas y cargar datos de demo
 docker compose -f docker-compose.demo.yml exec api npx prisma migrate deploy
 docker compose -f docker-compose.demo.yml exec api npx tsx prisma/seed.ts
 ```
 
-Abrir http://localhost:8080 — Login: **admin@inspectrail.demo** / **demo1234**
+Abrir **http://localhost:8080** — Login: admin@inspectrail.demo / demo1234
 
-Para parar: `docker compose -f docker-compose.demo.yml down`
+```bash
+# Para parar
+docker compose -f docker-compose.demo.yml down
 
----
+# Para borrar datos y empezar de cero
+docker compose -f docker-compose.demo.yml down -v
+```
 
-## Desarrollo local
+### Opcion B: Desarrollo (Node.js + Docker)
 
-### Requisitos
+Para modificar codigo, con hot reload en API y frontend. Necesitas **Node.js 22** y **Docker**.
 
-- **Node.js 22** (recomendado via nvm)
-- **Docker** (para TimescaleDB)
-
-### Levantar en local
-
-### 1. Clonar y entrar
+#### 1. Clonar
 
 ```bash
 git clone https://github.com/m-monterde/inspectrail.git
 cd inspectrail
 ```
 
-### 2. Levantar la base de datos
+#### 2. Base de datos (Docker)
 
 ```bash
 docker compose -f devops/docker/docker-compose.yml up -d database
+
+# Esperar a que esté healthy (~15 segundos)
+docker ps
 ```
 
-Esperar a que esté healthy (~15 segundos):
-```bash
-docker ps  # debe mostrar (healthy) en inspectrail-db
-```
-
-### 3. Configurar la API
+#### 3. API
 
 ```bash
 cd services/api
@@ -87,53 +92,60 @@ JWT_SECRET=dev_secret_change_in_production
 ENVIRONMENT=development
 EOF
 
-# Ejecutar migraciones y seed
+# Migraciones, generar cliente y datos de demo
 npx prisma migrate deploy
 npx prisma generate
 npx tsx prisma/seed.ts
-```
 
-El seed crea:
-- 1 organización, 2 usuarios, 2 sistemas de inspección
-- 4 trayectos con rutas reales vascas (Donostia-Bilbao, Vitoria-Pamplona)
-- 11.800 lecturas de sensores (10.000 en el trayecto principal)
-- 31 alertas generadas por análisis de umbrales
-
-### 4. Arrancar la API
-
-```bash
+# Arrancar con hot reload
 npm run dev
 ```
 
-La API estará en http://localhost:3000. Puedes probarla:
-```bash
-curl -s -X POST http://localhost:3000/ \
-  -H "Content-Type: application/json" \
-  -d '{"query":"mutation { login(email: \"admin@inspectrail.demo\", password: \"demo1234\") { token } }"}'
-```
+API en http://localhost:3000
 
-### 5. Arrancar el frontend
+#### 4. Frontend
 
 En otra terminal:
+
 ```bash
 cd services/frontend
 npm install
 npm run dev
 ```
 
-Abrir http://localhost:8080 en el navegador. Login con:
-- **admin@inspectrail.demo** / demo1234 (todos los permisos)
-- **operador@inspectrail.demo** / demo1234 (solo lectura)
+Frontend en http://localhost:8080 (con proxy automatico a la API).
 
-## Presentación técnica
+Login:
+- **admin@inspectrail.demo** / demo1234 — todos los permisos
+- **operador@inspectrail.demo** / demo1234 — solo lectura
 
-Disponible en http://localhost:8080/slides/index.html (local) o https://inspectrail.duckdns.org/slides (producción).
+## Datos de demo
 
-Navegar con flechas. F = pantalla completa. S = notas del presentador.
+El seed genera datos realistas de inspeccion ferroviaria:
+
+| Dato | Cantidad |
+|------|----------|
+| Organizaciones | 1 (InspectRail Demo) |
+| Usuarios | 2 (admin + operador) |
+| Sistemas de inspeccion | 2 (S121 conectado, S245 desconectado) |
+| Trayectos | 4 (rutas reales: Donostia-Bilbao, Vitoria-Pamplona) |
+| Lecturas de sensores | 11.800 (10.000 en el trayecto principal) |
+| Alertas | 31 (warning, alert, critical) |
+| Umbrales | 6 metricas configuradas |
+
+## Presentacion tecnica
+
+Disponible en:
+- **Local:** http://localhost:8080/slides/index.html
+- **Produccion:** https://inspectrail.duckdns.org/slides
+
+Controles: flechas para navegar, F = pantalla completa, S = notas del presentador.
+
+Guion detallado en `docs/notas_presentacion.md`.
 
 ## Estado actual
 
-| Componente | Estado | Tecnología |
+| Componente | Estado | Tecnologia |
 |------------|--------|------------|
 | Base de datos | Completado | PostgreSQL 16 + TimescaleDB + PostGIS |
 | API Backend | Completado | Node.js + TypeScript + Apollo Server + Prisma |
@@ -141,24 +153,24 @@ Navegar con flechas. F = pantalla completa. S = notas del presentador.
 | CI/CD | Completado | GitHub Actions + Docker + ghcr.io |
 | Deploy | Completado | VPS Hetzner + Traefik + HTTPS (Let's Encrypt) |
 | Ingesta | Diseñado | Python (asyncio + FastAPI) |
-| Análisis | Diseñado | Python (NumPy, SciPy) |
+| Analisis | Diseñado | Python (NumPy, SciPy) |
 | Observabilidad | Diseñado | Prometheus + Grafana + Loki |
 
-## Decisiones arquitectónicas (12 ADRs)
+## Decisiones arquitectonicas (12 ADRs)
 
-| ADR | Decisión |
+| ADR | Decision |
 |-----|----------|
 | ADR-001 | PostgreSQL + TimescaleDB con particionamiento tiempo + PK |
-| ADR-002 | Servicio de análisis independiente (no integrado en la API) |
-| ADR-003 | Python para ingesta y análisis (un solo lenguaje) |
-| ADR-004 | Multitenencia, modelo de datos y nomenclatura en inglés |
+| ADR-002 | Servicio de analisis independiente (no integrado en la API) |
+| ADR-003 | Python para ingesta y analisis (un solo lenguaje) |
+| ADR-004 | Multitenencia, modelo de datos y nomenclatura en ingles |
 | ADR-005 | API: Node.js + TypeScript + GraphQL (Apollo Server, Prisma) |
-| ADR-006 | Comunicación análisis → API: PostgreSQL LISTEN/NOTIFY (sin Redis) |
+| ADR-006 | Comunicacion analisis → API: PostgreSQL LISTEN/NOTIFY (sin Redis) |
 | ADR-007 | ORM: Prisma + Prisma Migrate |
 | ADR-008 | Frontend: React + Vite + MapLibre GL (WebGL) + ECharts + Tailwind |
 | ADR-009 | DevOps: GitHub Actions + Docker Compose |
 | ADR-010 | Demo: VPS Hetzner + DuckDNS |
-| ADR-011 | Entornos: dev híbrido, tests con testcontainers, staging/prod |
+| ADR-011 | Entornos: dev hibrido, tests con testcontainers, staging/prod |
 | ADR-012 | Monorepo |
 
 Detalle completo en `docs/decisiones_arquitectonicas.docx`.
