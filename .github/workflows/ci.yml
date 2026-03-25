@@ -24,6 +24,7 @@ jobs:
           cache-dependency-path: services/api/package-lock.json
       - run: npm ci
       - run: npx tsc --noEmit
+      - run: npm test
 
   # ── Frontend (React/TypeScript) ──
   frontend:
