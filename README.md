@@ -30,7 +30,7 @@ inspectrail/
 
 Hay dos formas de levantar el proyecto en local según lo que necesites:
 
-### Opcion A: Solo probar (solo Docker)
+### Opción A: Solo probar (solo Docker)
 
 Para ver la plataforma funcionando sin instalar Node.js ni dependencias. Solo necesitas **Docker**.
 
@@ -59,9 +59,9 @@ docker compose -f docker-compose.demo.yml down
 docker compose -f docker-compose.demo.yml down -v
 ```
 
-### Opcion B: Desarrollo (Node.js + Docker)
+### Opción B: Desarrollo (Node.js + Docker)
 
-Para modificar codigo, con hot reload en API y frontend. Necesitas **Node.js 22** y **Docker**.
+Para modificar código, con hot reload en API y frontend. Necesitas **Node.js 22** y **Docker**.
 
 #### 1. Clonar
 
@@ -113,7 +113,7 @@ npm install
 npm run dev
 ```
 
-Frontend en http://localhost:8080 (con proxy automatico a la API).
+Frontend en http://localhost:8080 (con proxy automático a la API).
 
 Login:
 - **admin@inspectrail.demo** / demo1234 — todos los permisos
@@ -121,23 +121,23 @@ Login:
 
 ## Datos de demo
 
-El seed genera datos realistas de inspeccion ferroviaria:
+El seed genera datos realistas de inspección ferroviaria:
 
 | Dato | Cantidad |
 |------|----------|
 | Organizaciones | 1 (InspectRail Demo) |
 | Usuarios | 2 (admin + operador) |
-| Sistemas de inspeccion | 2 (S121 conectado, S245 desconectado) |
+| Sistemas de inspección | 2 (S121 conectado, S245 desconectado) |
 | Trayectos | 4 (rutas reales: Donostia-Bilbao, Vitoria-Pamplona) |
 | Lecturas de sensores | 11.800 (10.000 en el trayecto principal) |
 | Alertas | 31 (warning, alert, critical) |
-| Umbrales | 6 metricas configuradas |
+| Umbrales | 6 métricas configuradas |
 
-## Presentacion tecnica
+## Presentación técnica
 
 Disponible en:
 - **Local:** http://localhost:8080/slides/index.html
-- **Produccion:** https://inspectrail.duckdns.org/slides
+- **Producción:** https://inspectrail.duckdns.org/slides
 
 Controles: flechas para navegar, F = pantalla completa, S = notas del presentador.
 
@@ -145,7 +145,7 @@ Guion detallado en `docs/notas_presentacion.md`.
 
 ## Estado actual
 
-| Componente | Estado | Tecnologia |
+| Componente | Estado | Tecnología |
 |------------|--------|------------|
 | Base de datos | Completado | PostgreSQL 16 + TimescaleDB + PostGIS |
 | API Backend | Completado | Node.js + TypeScript + Apollo Server + Prisma |
@@ -153,24 +153,24 @@ Guion detallado en `docs/notas_presentacion.md`.
 | CI/CD | Completado | GitHub Actions + Docker + ghcr.io |
 | Deploy | Completado | VPS Hetzner + Traefik + HTTPS (Let's Encrypt) |
 | Ingesta | Diseñado | Python (asyncio + FastAPI) |
-| Analisis | Diseñado | Python (NumPy, SciPy) |
+| Análisis | Diseñado | Python (NumPy, SciPy) |
 | Observabilidad | Diseñado | Prometheus + Grafana + Loki |
 
-## Decisiones arquitectonicas (12 ADRs)
+## Decisiones arquitectónicas (12 ADRs)
 
-| ADR | Decision |
+| ADR | Decisión |
 |-----|----------|
 | ADR-001 | PostgreSQL + TimescaleDB con particionamiento tiempo + PK |
-| ADR-002 | Servicio de analisis independiente (no integrado en la API) |
-| ADR-003 | Python para ingesta y analisis (un solo lenguaje) |
-| ADR-004 | Multitenencia, modelo de datos y nomenclatura en ingles |
+| ADR-002 | Servicio de análisis independiente (no integrado en la API) |
+| ADR-003 | Python para ingesta y análisis (un solo lenguaje) |
+| ADR-004 | Multitenencia, modelo de datos y nomenclatura en inglés |
 | ADR-005 | API: Node.js + TypeScript + GraphQL (Apollo Server, Prisma) |
-| ADR-006 | Comunicacion analisis → API: PostgreSQL LISTEN/NOTIFY (sin Redis) |
+| ADR-006 | Comunicación análisis → API: PostgreSQL LISTEN/NOTIFY (sin Redis) |
 | ADR-007 | ORM: Prisma + Prisma Migrate |
 | ADR-008 | Frontend: React + Vite + MapLibre GL (WebGL) + ECharts + Tailwind |
 | ADR-009 | DevOps: GitHub Actions + Docker Compose |
 | ADR-010 | Demo: VPS Hetzner + DuckDNS |
-| ADR-011 | Entornos: dev hibrido, tests con testcontainers, staging/prod |
+| ADR-011 | Entornos: dev híbrido, tests con testcontainers, staging/prod |
 | ADR-012 | Monorepo |
 
 Detalle completo en `docs/decisiones_arquitectonicas.docx`.

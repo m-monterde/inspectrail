@@ -10,7 +10,7 @@ Es un reto técnico para un proceso de selección de Ingeniero Full Stack. El ob
 - **Repositorio**: github.com/m-monterde/inspectrail (privado, cuenta m-monterde)
 - **Demo live**: https://inspectrail.duckdns.org
 - **VPS**: Hetzner 204.168.173.222, usuario `deploy`, acceso SSH por clave
-- **Versión actual**: v0.1.0
+- **Versión actual**: v0.2.0
 
 ## Arquitectura (5 servicios)
 ```
@@ -104,7 +104,7 @@ Dependencias: @apollo/server, graphql, @graphql-tools/schema, @graphql-tools/loa
 
 ## Frontend — Estado completado
 - React 19 + Vite + TypeScript + Tailwind CSS v4 + Apollo Client 4
-- Páginas: Login, Dashboard, Journeys, JourneyDetail, Alerts, Systems, Thresholds
+- 8 Páginas: Login, Dashboard, Journeys, JourneyDetail, Alerts, AlertDetail, Systems, Thresholds
 - Gráficas de sensores con Apache ECharts (zoom/pan, líneas de umbral)
 - Mapas con MapLibre GL JS (rutas coloreadas por métrica, downsampling por zoom)
 - Dockerfile multi-stage (Vite build + Nginx Alpine)
@@ -112,7 +112,7 @@ Dependencias: @apollo/server, graphql, @graphql-tools/schema, @graphql-tools/loa
 - Apollo Client 4: hooks en `@apollo/client/react`, config en `@apollo/client/core`, gql en `graphql-tag`
 
 ## Deploy — Estado completado
-- Demo live: https://inspectrail.duckdns.org (v0.1.0)
+- Demo live: https://inspectrail.duckdns.org (v0.2.0)
 - 4 contenedores: database (TimescaleDB), api (Node.js), frontend (Nginx), proxy (Traefik v2.11)
 - CI: push a main → lint + typecheck (API + frontend)
 - Build & Push: push tag `v*` → build imágenes → push a ghcr.io con tags semver + latest + sha

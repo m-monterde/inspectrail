@@ -200,7 +200,8 @@ Abrir https://inspectrail.duckdns.org. Login con admin@inspectrail.demo / demo12
 4. Hacer zoom — mostrar el contador de puntos cambiando
 5. Gráficas — zoom con slider, líneas de umbral
 6. Alertas — filtrar por severidad
-7. Umbrales — tabla de configuración
+7. Detalle de alerta — mapa GPS + gráfica del sensor en la zona
+8. Umbrales — tabla de configuración
 
 ---
 

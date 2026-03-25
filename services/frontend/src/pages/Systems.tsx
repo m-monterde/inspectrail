@@ -11,7 +11,7 @@ export function Systems() {
 
   if (loading) return (
     <div>
-      <PageHeader title="Sistemas de inspeccion" />
+      <PageHeader title="Sistemas de inspección" />
       <div className="grid grid-cols-2 gap-4">
         <Skeleton className="h-40 rounded-lg" />
         <Skeleton className="h-40 rounded-lg" />
@@ -22,7 +22,7 @@ export function Systems() {
 
   return (
     <div>
-      <PageHeader title="Sistemas de inspeccion" />
+      <PageHeader title="Sistemas de inspección" />
 
       <div className="grid grid-cols-2 gap-4">
         {data.inspectionSystems.map((sys: any) => (
@@ -37,7 +37,7 @@ export function Systems() {
               </div>
               {sys.lastSeenAt && (
                 <p className="text-xs text-muted-foreground">
-                  Ultimo contacto: {new Date(sys.lastSeenAt).toLocaleString('es-ES')}
+                  Último contacto: {new Date(sys.lastSeenAt).toLocaleString('es-ES')}
                 </p>
               )}
               {sys.sensorsConfig?.sensors && (

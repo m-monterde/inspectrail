@@ -19,8 +19,8 @@ const readingKeyToThresholdMetric: Record<string, string> = {
 };
 const colorOptions = [
   { value: 'none', label: 'Sin colorear' },
-  { value: 'leveling', label: 'Nivelacion' },
-  { value: 'alignment', label: 'Alineacion' },
+  { value: 'leveling', label: 'Nivelación' },
+  { value: 'alignment', label: 'Alineación' },
   { value: 'twist', label: 'Alabeo' },
   { value: 'accelVertical', label: 'Acel. Vertical' },
   { value: 'accelLateral', label: 'Acel. Lateral' },
@@ -155,11 +155,11 @@ export function JourneyDetail() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Severidad</TableHead>
-                  <TableHead>Metrica</TableHead>
+                  <TableHead>Métrica</TableHead>
                   <TableHead>PK</TableHead>
                   <TableHead className="text-right">Valor</TableHead>
                   <TableHead className="text-right">Umbral</TableHead>
-                  <TableHead className="text-right">Desviacion</TableHead>
+                  <TableHead className="text-right">Desviación</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

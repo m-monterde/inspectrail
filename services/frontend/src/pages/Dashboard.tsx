@@ -85,7 +85,7 @@ export function Dashboard() {
         {/* Bar chart */}
         <Card>
           <CardHeader className="pb-0">
-            <CardTitle className="text-sm text-muted-foreground font-medium">Alertas por metrica</CardTitle>
+            <CardTitle className="text-sm text-muted-foreground font-medium">Alertas por métrica</CardTitle>
           </CardHeader>
           <CardContent className="p-4 pt-0">
             <AlertsByMetricChart alerts={stats.recentAlerts} />
@@ -103,7 +103,7 @@ export function Dashboard() {
             <TableHeader>
               <TableRow>
                 <TableHead>Severidad</TableHead>
-                <TableHead>Metrica</TableHead>
+                <TableHead>Métrica</TableHead>
                 <TableHead>Trayecto</TableHead>
                 <TableHead>PK</TableHead>
                 <TableHead className="text-right">Valor</TableHead>

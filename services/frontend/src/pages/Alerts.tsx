@@ -59,12 +59,12 @@ export function Alerts() {
             <TableHeader>
               <TableRow>
                 <TableHead>Severidad</TableHead>
-                <TableHead>Metrica</TableHead>
+                <TableHead>Métrica</TableHead>
                 <TableHead>Trayecto</TableHead>
                 <TableHead>PK</TableHead>
                 <TableHead className="text-right">Valor</TableHead>
                 <TableHead className="text-right">Umbral</TableHead>
-                <TableHead className="text-right">Desviacion</TableHead>
+                <TableHead className="text-right">Desviación</TableHead>
                 <TableHead>Fecha</TableHead>
               </TableRow>
             </TableHeader>

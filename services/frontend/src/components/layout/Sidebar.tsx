@@ -52,7 +52,7 @@ export function Sidebar() {
         <p className="text-sm truncate">{user?.name}</p>
         <p className="text-xs text-sidebar-foreground/60 truncate">{user?.email}</p>
         <Button variant="ghost" size="sm" className="mt-2 h-auto p-0 text-xs text-sidebar-foreground/50 hover:text-sidebar-foreground" onClick={logout}>
-          Cerrar sesion
+          Cerrar sesión
         </Button>
       </div>
     </aside>

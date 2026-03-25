@@ -38,7 +38,7 @@ export function Thresholds() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Metrica</TableHead>
+                <TableHead>Métrica</TableHead>
                 <TableHead>Unidad</TableHead>
                 <TableHead className="text-center" colSpan={2}>
                   <Badge variant="outline" className="bg-amber-100 text-amber-700 border-amber-200">Warning</Badge>
