@@ -73,14 +73,20 @@ export function Dashboard() {
 
         {/* Donut chart */}
         <Card>
-          <CardContent className="p-4">
+          <CardHeader className="pb-0">
+            <CardTitle className="text-sm text-muted-foreground font-medium">Alertas por severidad</CardTitle>
+          </CardHeader>
+          <CardContent className="p-4 pt-0">
             <AlertsBySeverityChart counts={stats.alertCounts} />
           </CardContent>
         </Card>
 
         {/* Bar chart */}
         <Card>
-          <CardContent className="p-4">
+          <CardHeader className="pb-0">
+            <CardTitle className="text-sm text-muted-foreground font-medium">Alertas por metrica</CardTitle>
+          </CardHeader>
+          <CardContent className="p-4 pt-0">
             <AlertsByMetricChart alerts={stats.recentAlerts} />
           </CardContent>
         </Card>
@@ -133,7 +139,6 @@ export function Dashboard() {
 
 function AlertsBySeverityChart({ counts }: { counts: { warning: number; alert: number; critical: number } }) {
   const option = {
-    title: { text: 'Alertas por severidad', textStyle: { fontSize: 13, fontWeight: 500, color: '#334155' } },
     tooltip: { trigger: 'item' as const },
     series: [{
       type: 'pie', radius: ['40%', '70%'],
@@ -158,7 +163,6 @@ function AlertsByMetricChart({ alerts }: { alerts: any[] }) {
   };
 
   const option = {
-    title: { text: 'Alertas por metrica', textStyle: { fontSize: 13, fontWeight: 500, color: '#334155' } },
     tooltip: { trigger: 'axis' as const },
     grid: { left: 50, right: 16, top: 36, bottom: 28 },
     xAxis: { type: 'category' as const, data: metrics.map(m => labels[m] || m), axisLabel: { fontSize: 10 } },
