@@ -87,14 +87,22 @@ export function AlertDetail() {
       <div className="grid grid-cols-4 gap-4 mb-6">
         <Card>
           <CardContent className="p-4">
-            <p className="text-xs text-muted-foreground mb-1">Severidad</p>
-            <SeverityBadge severity={alert.severity} />
+            <div className="flex items-center gap-2 mb-2">
+              <SeverityBadge severity={alert.severity} />
+              <span className="font-medium"><MetricLabel metric={alert.metric} /></span>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Detectada {new Date(alert.detectedAt).toLocaleString('es-ES')}
+            </p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
-            <p className="text-xs text-muted-foreground mb-1">Metrica</p>
-            <p className="font-medium"><MetricLabel metric={alert.metric} /></p>
+            <p className="text-xs text-muted-foreground mb-1">Trayecto</p>
+            <p className="font-medium">{alert.journey.name}</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              <code className="bg-muted px-1.5 py-0.5 rounded">{alert.journey.system.code}</code> {alert.journey.system.name}
+            </p>
           </CardContent>
         </Card>
         <Card>
@@ -115,12 +123,6 @@ export function AlertDetail() {
             )}
           </CardContent>
         </Card>
-      </div>
-
-      {/* Info trayecto */}
-      <div className="flex items-center gap-6 mb-6 text-sm">
-        <div><span className="text-muted-foreground">Trayecto:</span> <code className="bg-muted px-1.5 py-0.5 rounded text-xs">{alert.journey.system.code}</code> {alert.journey.name}</div>
-        <div><span className="text-muted-foreground">Detectada:</span> {new Date(alert.detectedAt).toLocaleString('es-ES')}</div>
       </div>
 
       {/* Mapa: ruta completa + segmento de alerta */}

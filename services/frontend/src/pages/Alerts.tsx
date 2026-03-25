@@ -1,6 +1,6 @@
 import { useQuery } from '@apollo/client/react';
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { GET_ALERTS } from '@/graphql/queries';
 import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -16,6 +16,8 @@ export function Alerts() {
 
   const filter: any = {};
   if (severityFilter) filter.severity = severityFilter;
+
+  const navigate = useNavigate();
 
   const { data, loading, error } = useQuery<any>(GET_ALERTS, {
     variables: { filter, pagination: { page, pageSize: 20 } },
@@ -68,9 +70,9 @@ export function Alerts() {
             </TableHeader>
             <TableBody>
               {items.map((a: any) => (
-                <TableRow key={a.id} className="cursor-pointer">
-                  <TableCell><Link to={`/alerts/${a.id}`}><SeverityBadge severity={a.severity} /></Link></TableCell>
-                  <TableCell><Link to={`/alerts/${a.id}`} className="hover:underline"><MetricLabel metric={a.metric} /></Link></TableCell>
+                <TableRow key={a.id} className="cursor-pointer hover:bg-muted/50" onClick={() => navigate(`/alerts/${a.id}`)}>
+                  <TableCell><SeverityBadge severity={a.severity} /></TableCell>
+                  <TableCell><MetricLabel metric={a.metric} /></TableCell>
                   <TableCell>
                     <code className="text-xs text-muted-foreground">{a.journey.system.code}</code>
                     {' '}{a.journey.name}
