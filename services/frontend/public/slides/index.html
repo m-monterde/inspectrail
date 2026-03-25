@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InspectRail — Presentación Técnica</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/black.css">
+<style>
+:root { --r-heading-font: system-ui, sans-serif; --r-main-font: system-ui, sans-serif; }
+.reveal { font-size: 28px; }
+.reveal h1 { font-size: 2.2em; font-weight: 700; }
+.reveal h2 { font-size: 1.5em; font-weight: 600; color: #60a5fa; }
+.reveal h3 { font-size: 1.1em; font-weight: 500; color: #94a3b8; }
+.reveal table { margin: 0.5em auto; font-size: 0.7em; border-collapse: collapse; }
+.reveal table th { background: #1e293b; color: #60a5fa; padding: 8px 14px; text-align: left; }
+.reveal table td { padding: 6px 14px; border-bottom: 1px solid #334155; }
+.reveal table tr:hover td { background: #1e293b33; }
+.pill { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 0.75em; font-weight: 600; }
+.pill-green { background: #166534; color: #4ade80; }
+.pill-red { background: #7f1d1d; color: #f87171; }
+.pill-yellow { background: #713f12; color: #fbbf24; }
+.pill-blue { background: #1e3a5f; color: #60a5fa; }
+.box { background: #1e293b; border-radius: 12px; padding: 20px; margin: 8px; text-align: left; }
+.box h3 { margin: 0 0 8px 0; color: #60a5fa; font-size: 0.9em; }
+.box p, .box li { font-size: 0.75em; margin: 4px 0; color: #cbd5e1; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+.grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; }
+.mono { font-family: 'Fira Code', 'Cascadia Code', monospace; background: #0f172a; padding: 16px; border-radius: 8px; font-size: 0.7em; line-height: 1.6; text-align: left; color: #e2e8f0; }
+.ok { color: #4ade80; } .no { color: #f87171; } .warn { color: #fbbf24; }
+.big { font-size: 1.4em; font-weight: 700; }
+.subtitle { color: #94a3b8; font-size: 0.8em; }
+.highlight { color: #60a5fa; font-weight: 600; }
+.reveal .slide-number { font-size: 14px; }
+.dim { opacity: 0.5; }
+.vs { display: flex; gap: 20px; align-items: stretch; }
+.vs > div { flex: 1; }
+</style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+<!-- 1. PORTADA -->
+<section>
+<h1>InspectRail</h1>
+<h3>Plataforma de monitorización de infraestructura ferroviaria</h3>
+<br>
+<p class="subtitle">Mario Monterde — Reto técnico Ingeniero Full Stack</p>
+<p class="subtitle">Marzo 2026</p>
+</section>
+
+<!-- 2. EL PROBLEMA -->
+<section>
+<h2>El problema</h2>
+<br>
+<div class="grid-3">
+<div class="box"><h3>Sensores en trenes</h3><p>Acelerómetros, nivelación, alineación, alabeo, ancho de vía, GPS</p></div>
+<div class="box"><h3>Datos masivos</h3><p>Resolución centimétrica<br><span class="big highlight">500.000 puntos</span><br>por trayecto de 50km</p></div>
+<div class="box"><h3>Detección</h3><p>Anomalías en tiempo real<br>3 niveles de severidad<br>Alertas como segmentos</p></div>
+</div>
+<br>
+<p class="fragment">7 métricas simultáneas: nivelación, alineación, alabeo, ancho de vía, aceleración vertical/lateral, velocidad</p>
+</section>
+
+<!-- 3. ALCANCE -->
+<section>
+<h2>Alcance del prototipo</h2>
+<br>
+<div class="vs">
+<div class="box">
+<h3 style="color:#4ade80">Implementado</h3>
+<ul>
+<li>BD TimescaleDB + PostGIS</li>
+<li>API GraphQL (Node.js + Prisma)</li>
+<li>Frontend React + Mapas + Gráficas</li>
+<li>Auth JWT + RBAC</li>
+<li>CI/CD + Deploy HTTPS</li>
+<li>11.800 lecturas demo, 4 trayectos</li>
+</ul>
+</div>
+<div class="box">
+<h3 style="color:#fbbf24">Diseñado (no implementado)</h3>
+<ul>
+<li>Servicio de ingesta (Python)</li>
+<li>Servicio de análisis / ML</li>
+<li>Observabilidad (Prometheus+Grafana)</li>
+<li>Notificaciones SMS/email</li>
+<li>Modo on-premise</li>
+</ul>
+</div>
+</div>
+<br>
+<p class="fragment"><span class="highlight">Demo live:</span> https://inspectrail.duckdns.org</p>
+</section>
+
+<!-- 4. ARQUITECTURA -->
+<section>
+<h2>Arquitectura — 5 servicios</h2>
+<div class="mono" style="font-size:0.6em; text-align:center;">
+Tren (sensores)
+    ↓
+<span class="pill pill-yellow">Ingesta (Python)</span>  →  <span class="pill pill-blue">BD (TimescaleDB)</span>  →  <span class="pill pill-yellow">Análisis (Python)</span>
+                                    ↓
+                        pg_notify('new_alert')
+                                    ↓
+                      <span class="pill pill-green">API (Node+GraphQL)</span>  →  <span class="pill pill-blue">Frontend (React)</span>
+</div>
+<br>
+<div class="grid-2">
+<div class="box"><h3>ADR-002</h3><p>Análisis como servicio independiente — no dentro de la API. Escalado independiente, evolución a ML sin tocar API</p></div>
+<div class="box"><h3>ADR-012</h3><p>Monorepo — simplicidad para equipo pequeño. Cada servicio con su Dockerfile y tests</p></div>
+</div>
+</section>
+
+<!-- 5. BD: POR QUÉ TIMESCALEDB -->
+<section>
+<h2>Base de datos — ADR-001</h2>
+<h3>¿Por qué TimescaleDB?</h3>
+<table>
+<tr><th></th><th>PostgreSQL</th><th>PG + TimescaleDB</th><th>InfluxDB</th></tr>
+<tr><td>Datos relacionales</td><td class="ok">✅</td><td class="ok">✅</td><td class="no">❌</td></tr>
+<tr><td>Time-series optimizado</td><td class="no">❌ manual</td><td class="ok">✅ Hypertables</td><td class="ok">✅</td></tr>
+<tr><td>Compresión nativa</td><td class="no">❌</td><td class="ok">✅ ~95%</td><td class="ok">✅</td></tr>
+<tr><td>PostGIS (geodatos)</td><td class="ok">✅</td><td class="ok">✅</td><td class="no">❌</td></tr>
+<tr><td>JOINs sensores↔dominio</td><td class="ok">✅</td><td class="ok">✅ nativos</td><td class="no">❌ dos BD</td></tr>
+<tr><td>Infraestructura</td><td class="ok">1 motor</td><td class="ok">1 motor</td><td class="no">2 motores</td></tr>
+</table>
+<br>
+<p class="fragment"><span class="highlight">Decisión:</span> TimescaleDB = PostgreSQL + superpoderes para time-series. Un solo motor para todo.</p>
+</section>
+
+<!-- 6. MODELO DE DATOS -->
+<section>
+<h2>Modelo de datos — ADR-004</h2>
+<div class="mono" style="font-size:0.55em;">
+<span style="color:#60a5fa">organizations</span> ──→ <span style="color:#4ade80">users</span> ──→ <span style="color:#4ade80">user_roles</span> ──→ <span style="color:#4ade80">roles</span> ──→ <span style="color:#4ade80">permissions</span>
+      │                                                    <span class="dim">RBAC (5 tablas, 10 permisos)</span>
+      ├──→ <span style="color:#fbbf24">inspection_systems</span> ──→ <span style="color:#fbbf24">journeys</span> ──→ <span style="color:#f87171">sensor_readings</span> <span class="dim">(hypertable)</span>
+      │                                        │
+      ├──→ <span style="color:#c084fc">thresholds</span> <span class="dim">(por org + métrica)</span>   ├──→ <span style="color:#f87171">alerts</span> <span class="dim">(segmentos pk_start–pk_end)</span>
+      │                                        │
+      └──→ <span class="dim">groups (futuro)</span>                └──→ <span class="dim">agg_readings_summary (continuous aggregate)</span>
+</div>
+<br>
+<div class="grid-3">
+<div class="box"><h3>Multitenencia</h3><p>Todo filtrado por organizationId</p></div>
+<div class="box"><h3>Trayectos dinámicos</h3><p>La ruta emerge de las lecturas, no está predefinida</p></div>
+<div class="box"><h3>Alertas como segmentos</h3><p>pk_start – pk_end con coordenadas</p></div>
+</div>
+</section>
+
+<!-- 7. PYTHON PARA INGESTA+ANÁLISIS -->
+<section>
+<h2>¿Por qué Python? — ADR-003</h2>
+<table>
+<tr><th></th><th>Go + Python</th><th>Python solo</th></tr>
+<tr><td>Lenguajes en el equipo</td><td class="warn">2</td><td class="ok">1</td></tr>
+<tr><td>Coste de contratación</td><td class="warn">Mayor</td><td class="ok">Menor</td></tr>
+<tr><td>NumPy/SciPy</td><td>Solo análisis</td><td class="ok">Ambos servicios</td></tr>
+<tr><td>Rendimiento I/O</td><td class="ok">Go óptimo</td><td class="ok">asyncio suficiente</td></tr>
+<tr><td>Evolución a ML</td><td class="ok">✅</td><td class="ok">✅</td></tr>
+<tr><td>Código compartido</td><td class="no">❌</td><td class="ok">✅</td></tr>
+</table>
+<br>
+<p class="fragment"><span class="highlight">Decisión:</span> Python para ambos. Si ingesta necesita más rendimiento → migrar solo ingesta a Go (reversible)</p>
+</section>
+
+<!-- 8. GRAPHQL vs REST -->
+<section>
+<h2>API: GraphQL vs REST — ADR-005</h2>
+<div class="vs">
+<div class="box">
+<h3 style="color:#f87171">REST</h3>
+<ul>
+<li>Endpoints fijos por recurso</li>
+<li><strong>Over-fetching:</strong> campos innecesarios</li>
+<li><strong>Under-fetching:</strong> múltiples llamadas</li>
+<li>Real-time: WebSocket separado</li>
+<li>Los endpoints proliferan</li>
+</ul>
+</div>
+<div class="box">
+<h3 style="color:#4ade80">GraphQL</h3>
+<ul>
+<li>Un endpoint, el cliente define qué pide</li>
+<li><strong>Datos exactos</strong> por cada vista</li>
+<li><strong>Una petición</strong> para datos relacionados</li>
+<li>Subscriptions nativas</li>
+<li>Schema tipado = contrato front↔back</li>
+</ul>
+</div>
+</div>
+<br>
+<p class="fragment"><span class="highlight">Decisión:</span> GraphQL + Node.js + TypeScript — alineado con el stack de InspectRail</p>
+</section>
+
+<!-- 9. ARQUITECTURA API -->
+<section>
+<h2>Arquitectura de la API</h2>
+<div class="mono" style="font-size:0.65em; text-align:center;">
+Schema .graphql  =  <span style="color:#60a5fa">Contrato del API</span> (equivale a DTOs)
+       ↓
+  <span style="color:#4ade80">Resolvers</span>      =  Controllers (delegan a services)
+       ↓
+  <span style="color:#fbbf24">Services</span>       =  Lógica de negocio
+       ↓
+  <span style="color:#c084fc">Prisma ORM</span>     =  Acceso a datos type-safe → PostgreSQL
+</div>
+<br>
+<div class="grid-3">
+<div class="box"><h3 style="color:#f87171">NestJS ❌</h3><p>Over-engineering para el alcance del proyecto</p></div>
+<div class="box"><h3 style="color:#4ade80">Schema-first ✅</h3><p>Capa de servicios, separación clara</p></div>
+<div class="box"><h3 style="color:#f87171">Resolvers→Prisma ❌</h3><p>Mezcla lógica con resolución de datos</p></div>
+</div>
+<p class="fragment subtitle">ADR-007: Prisma elegido sobre TypeORM (config compleja), Drizzle (inmaduro), Knex (sin type-safety)</p>
+</section>
+
+<!-- 10. SEGURIDAD -->
+<section>
+<h2>Seguridad</h2>
+<div class="grid-2">
+<div class="box"><h3>Autenticación — JWT</h3>
+<ul><li>HS256, expira en 24h</li><li>Stateless: no sesiones en servidor</li><li>Passwords: bcrypt (coste 10)</li><li class="dim">Descartado: sesiones (requiere Redis), OAuth2 (sobredimensionado)</li></ul>
+</div>
+<div class="box"><h3>Autorización — RBAC</h3>
+<ul><li>5 tablas: users→roles→permissions</li><li>10 permisos granulares</li><li>Nuevo rol = config en BD, sin tocar código</li><li class="dim">Descartado: check de rol directo (rígido), ABAC (overkill)</li></ul>
+</div>
+<div class="box"><h3>Multitenencia</h3>
+<ul><li>Filtrado automático por organizationId</li><li>Org A nunca ve datos de Org B</li><li>Dispositivos: api_key + api_secret (bcrypt)</li></ul>
+</div>
+<div class="box"><h3>Transporte</h3>
+<ul><li>HTTPS con Let's Encrypt (auto-renovación)</li><li>BD y API: solo red interna Docker</li><li>.env con secretos fuera del repo</li></ul>
+</div>
+</div>
+</section>
+
+<!-- 11. POR QUÉ WEBGL -->
+<section>
+<h2>Frontend: ¿Por qué WebGL? — ADR-008</h2>
+<br>
+<table>
+<tr><th>Puntos de dato</th><th>SVG / DOM</th><th>WebGL / Canvas</th></tr>
+<tr><td>10.000</td><td class="warn">🐌 Lento</td><td class="ok">✅ 60fps</td></tr>
+<tr><td>100.000</td><td class="no">💀 Se congela</td><td class="ok">✅ 60fps</td></tr>
+<tr><td>500.000</td><td class="no">💀 Imposible</td><td class="ok">✅ 60fps</td></tr>
+</table>
+<br>
+<div class="grid-2">
+<div class="box"><h3 style="color:#f87171">SVG/DOM (Leaflet, Recharts)</h3><p>Cada punto = un elemento HTML. El navegador crea, posiciona y repinta TODOS en cada frame</p></div>
+<div class="box"><h3 style="color:#4ade80">WebGL (MapLibre, ECharts)</h3><p>Todos los puntos → GPU (tarjeta gráfica). Renderizado en paralelo. Misma tecnología que los videojuegos</p></div>
+</div>
+<br>
+<p class="fragment big">Un trayecto de 50km a 10cm = 500.000 puntos. <span class="highlight">WebGL no es opcional.</span></p>
+</section>
+
+<!-- 12. MAPAS: LEAFLET vs MAPLIBRE -->
+<section>
+<h2>Mapas: Leaflet vs MapLibre — ADR-008</h2>
+<table>
+<tr><th></th><th>Leaflet</th><th>MapLibre GL</th><th>Mapbox GL v2</th></tr>
+<tr><td>Renderizado</td><td class="no">SVG/DOM</td><td class="ok">WebGL</td><td class="ok">WebGL</td></tr>
+<tr><td>Datos densos</td><td class="no">❌ >10K crash</td><td class="ok">✅ millones</td><td class="ok">✅ millones</td></tr>
+<tr><td>Licencia</td><td class="ok">Open</td><td class="ok">Open (BSD)</td><td class="no">Propietaria</td></tr>
+<tr><td>Coste</td><td class="ok">Gratis</td><td class="ok">Gratis</td><td class="no">De pago</td></tr>
+<tr><td>Tiles locales</td><td class="warn">Limitado</td><td class="ok">✅ PMTiles</td><td class="no">❌</td></tr>
+<tr><td>On-premise</td><td class="warn">Difícil</td><td class="ok">✅ Perfecto</td><td class="no">❌</td></tr>
+</table>
+<br>
+<p class="fragment"><span class="highlight">Decisión:</span> MapLibre GL JS — WebGL + open-source + tiles locales para on-premise</p>
+</section>
+
+<!-- 13. GRÁFICAS: SVG vs CANVAS -->
+<section>
+<h2>Gráficas: SVG vs Canvas — ADR-008</h2>
+<table>
+<tr><th></th><th>Recharts</th><th>Chart.js</th><th>Apache ECharts</th></tr>
+<tr><td>Renderizado</td><td class="no">SVG</td><td class="warn">Canvas</td><td class="ok">Canvas + WebGL</td></tr>
+<tr><td>Datos densos</td><td class="no">❌ 10K máx</td><td class="warn">⚠️ limitado</td><td class="ok">✅ millones</td></tr>
+<tr><td>Downsampling auto</td><td class="no">❌</td><td class="no">❌</td><td class="ok">✅</td></tr>
+<tr><td>Zoom/Pan nativo</td><td class="no">❌</td><td class="warn">⚠️ plugin</td><td class="ok">✅</td></tr>
+<tr><td>Líneas de umbral</td><td class="no">❌</td><td class="warn">⚠️</td><td class="ok">✅ markLine</td></tr>
+<tr><td>Complejidad</td><td class="ok">Simple</td><td class="ok">Simple</td><td class="warn">Media</td></tr>
+</table>
+<br>
+<p class="fragment"><span class="highlight">Decisión:</span> Apache ECharts — Canvas + downsampling automático + zoom nativo</p>
+</section>
+
+<!-- 14. TÉCNICAS DE RENDIMIENTO -->
+<section>
+<h2>Rendimiento en el frontend</h2>
+<div class="vs">
+<div class="box">
+<h3>Downsampling por zoom</h3>
+<table style="font-size:0.9em;">
+<tr><th>Zoom</th><th>Puntos</th><th>Factor</th></tr>
+<tr><td>7-9</td><td>500</td><td>1/20</td></tr>
+<tr><td>10-11</td><td>1.250</td><td>1/8</td></tr>
+<tr><td>12-13</td><td>3.333</td><td>1/3</td></tr>
+<tr><td>14+</td><td class="highlight">10.000</td><td>todos</td></tr>
+</table>
+<p style="font-size:0.7em;color:#94a3b8;">A zoom bajo no hay píxeles para 10K puntos. Se muestran menos sin perder información visual.</p>
+</div>
+<div class="box">
+<h3>Coloración por métrica</h3>
+<p>Todos los valores de todas las métricas se precalculan en el GeoJSON una sola vez</p>
+<br>
+<p>Cambiar de métrica = cambiar una <span class="highlight">expression de MapLibre</span></p>
+<br>
+<p class="ok" style="font-size:1.2em;">→ Instantáneo (GPU)</p>
+<p style="font-size:0.7em;color:#94a3b8;">Sin regenerar geometría ni recalcular</p>
+</div>
+</div>
+</section>
+
+<!-- 15. LISTEN/NOTIFY -->
+<section>
+<h2>Alertas en vivo sin Redis — ADR-006</h2>
+<table>
+<tr><th></th><th>Redis Pub/Sub</th><th>RabbitMQ</th><th>PG LISTEN/NOTIFY</th></tr>
+<tr><td>Infra extra</td><td class="no">✅ servidor Redis</td><td class="no">✅ broker</td><td class="ok">❌ ya tenemos PG</td></tr>
+<tr><td>Latencia</td><td class="ok">~1ms</td><td class="warn">~10ms</td><td class="ok">~1ms</td></tr>
+<tr><td>Persistencia</td><td class="no">❌</td><td class="ok">✅</td><td class="ok">Vía BD</td></tr>
+<tr><td>Complejidad</td><td class="warn">Media</td><td class="no">Alta</td><td class="ok">Baja</td></tr>
+</table>
+<br>
+<div class="mono" style="font-size:0.6em; text-align:center;">
+Análisis (Python)                           API (Node.js)
+     │                                         │
+     │  INSERT alert + pg_notify('new_alert')  │  LISTEN new_alert
+     ├──────── PostgreSQL LISTEN/NOTIFY ──────→│
+     │         <span class="dim">(latencia ~1ms, sin Redis)</span>     │  → GraphQL Subscription
+     │                                         ├──→ Frontend (WebSocket)
+</div>
+</section>
+
+<!-- 16. DEVOPS -->
+<section>
+<h2>DevOps — ADR-009</h2>
+<div class="mono" style="font-size:0.65em; text-align:center;">
+push a main  →  <span class="pill pill-blue">CI</span> (lint + typecheck)
+push tag v*  →  <span class="pill pill-yellow">Build Docker</span> → <span class="pill pill-green">ghcr.io</span> → <span class="pill pill-blue">Deploy SSH</span> → docker compose up
+</div>
+<br>
+<div class="grid-2">
+<div>
+<table style="font-size:0.85em;">
+<tr><th></th><th>GitHub Actions</th><th>Drone CI</th></tr>
+<tr><td>Infra</td><td class="ok">Zero</td><td class="no">Self-hosted</td></tr>
+<tr><td>Integración</td><td class="ok">Nativa</td><td class="warn">Externa</td></tr>
+</table>
+</div>
+<div>
+<table style="font-size:0.85em;">
+<tr><th></th><th>Docker Compose</th><th>Kubernetes</th></tr>
+<tr><td>5 servicios</td><td class="ok">✅ Perfecto</td><td class="warn">Overkill</td></tr>
+<tr><td>On-premise</td><td class="ok">Simple</td><td class="no">Complejo</td></tr>
+</table>
+</div>
+</div>
+<br>
+<p class="fragment subtitle">Imágenes tagueadas con semver: <code>ghcr.io/m-monterde/inspectrail-api:0.1.0</code></p>
+</section>
+
+<!-- 17. TRAEFIK -->
+<section>
+<h2>Proxy: Traefik vs Nginx</h2>
+<table>
+<tr><th></th><th>Traefik</th><th>Nginx</th></tr>
+<tr><td>Service discovery</td><td class="ok">Auto (labels Docker)</td><td class="no">Config manual</td></tr>
+<tr><td>HTTPS Let's Encrypt</td><td class="ok">Integrado</td><td class="no">Certbot externo</td></tr>
+<tr><td>Añadir servicio</td><td class="ok">Solo un label</td><td class="warn">Editar conf + reload</td></tr>
+<tr><td>Ideal para</td><td class="highlight">SaaS (dinámico)</td><td class="highlight">On-premise (estático)</td></tr>
+</table>
+<br>
+<p class="fragment"><span class="highlight">Decisión:</span> Traefik para SaaS (auto-discovery + HTTPS), Nginx para on-premise (sin internet)</p>
+</section>
+
+<!-- 18. ARQUITECTURA DE DEPLOY -->
+<section>
+<h2>Deploy — Arquitectura</h2>
+<div class="mono" style="font-size:0.65em; text-align:center;">
+Internet → :443 → <span class="pill pill-green">Traefik</span> (HTTPS)
+                       │
+                       ↓
+               <span class="pill pill-blue">Frontend</span> (Nginx)
+                       │
+                  /graphql
+                       ↓
+                 <span class="pill pill-yellow">API</span> (Node.js)
+                       │
+                       ↓
+              <span class="pill pill-red">TimescaleDB</span>
+</div>
+<br>
+<div class="grid-4">
+<div class="box" style="text-align:center;"><h3>VPS</h3><p>Hetzner<br>204.168.173.222</p></div>
+<div class="box" style="text-align:center;"><h3>Dominio</h3><p>DuckDNS<br>(gratuito)</p></div>
+<div class="box" style="text-align:center;"><h3>HTTPS</h3><p>Let's Encrypt<br>(auto-renovación)</p></div>
+<div class="box" style="text-align:center;"><h3>Imágenes</h3><p>ghcr.io<br>(públicas)</p></div>
+</div>
+</section>
+
+<!-- 19. EVOLUCIÓN -->
+<section>
+<h2>Evolución y escalabilidad</h2>
+<div class="grid-2">
+<div class="box"><h3>Escalado de datos</h3>
+<ul><li>Compresión TimescaleDB ~95%</li><li>Continuous aggregates</li><li>Downsampling en API (time_bucket)</li><li>Downsampling en frontend (por zoom)</li></ul>
+</div>
+<div class="box"><h3>Machine Learning</h3>
+<ul><li>Python preparado (NumPy/SciPy/sklearn)</li><li>De umbrales estáticos → modelos predictivos</li><li>Servicio independiente: evoluciona sin tocar API</li></ul>
+</div>
+<div class="box"><h3>On-premise</h3>
+<ul><li>Docker save → tar → hardware sin internet</li><li>PMTiles: mapas locales</li><li>Nginx reemplaza Traefik</li><li>Sincronización al conectar</li></ul>
+</div>
+<div class="box"><h3>Observabilidad</h3>
+<ul><li>Prometheus + Grafana + Loki</li><li>Diseñado, a 1 docker-compose de distancia</li><li>No implementado: prioridad en funcionalidad core</li></ul>
+</div>
+</div>
+</section>
+
+<!-- 20. DEMO -->
+<section>
+<h2>Demo en vivo</h2>
+<br>
+<p class="big"><a href="https://inspectrail.duckdns.org" target="_blank" style="color:#60a5fa;">inspectrail.duckdns.org</a></p>
+<br>
+<div class="mono" style="font-size:0.7em;">
+Login → Dashboard → Trayecto → Mapa coloreado → Gráficas con zoom → Alertas
+</div>
+<br>
+<div class="box" style="text-align:center; max-width:400px; margin:0 auto;">
+<p><span class="highlight">admin@inspectrail.demo</span></p>
+<p>demo1234</p>
+</div>
+</section>
+
+<!-- 21. CIERRE -->
+<section>
+<h1>InspectRail</h1>
+<br>
+<div class="grid-3">
+<div class="box" style="text-align:center;"><h3>Repositorio</h3><p>github.com/m-monterde/inspectrail</p></div>
+<div class="box" style="text-align:center;"><h3>Demo</h3><p>inspectrail.duckdns.org</p></div>
+<div class="box" style="text-align:center;"><h3>Documentación</h3><p>12 ADRs + READMEs por servicio</p></div>
+</div>
+<br><br>
+<p class="subtitle">Mario Monterde — mariomontom@gmail.com</p>
+</section>
+
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+<script>
+Reveal.initialize({
+  hash: true,
+  slideNumber: 'c/t',
+  transition: 'slide',
+  width: 1280,
+  height: 720,
+});
+</script>
+</body>
+</html>
