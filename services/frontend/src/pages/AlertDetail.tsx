@@ -80,6 +80,7 @@ export function AlertDetail() {
         title={`Alerta ${metricLabels[alert.metric] || alert.metric}`}
         breadcrumbs={[
           { label: 'Alertas', to: '/alerts' },
+          { label: alert.journey.name, to: `/journeys/${alert.journey.id}` },
         ]}
       />
 

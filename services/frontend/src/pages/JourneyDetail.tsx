@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery } from '@apollo/client/react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { GET_JOURNEY, GET_SENSOR_READINGS, GET_THRESHOLDS } from '@/graphql/queries';
 import { SensorChart } from '@/components/charts/SensorChart';
 import { JourneyMap } from '@/components/maps/JourneyMap';
@@ -29,6 +29,7 @@ const colorOptions = [
 export function JourneyDetail() {
   const { id } = useParams<{ id: string }>();
   const journeyId = parseInt(id!, 10);
+  const navigate = useNavigate();
 
   const { data, loading, error } = useQuery<any>(GET_JOURNEY, { variables: { id: journeyId } });
   const { data: sensorData, loading: sensorLoading } = useQuery<any>(GET_SENSOR_READINGS, {
@@ -163,7 +164,7 @@ export function JourneyDetail() {
               </TableHeader>
               <TableBody>
                 {j.alerts.map((a: any) => (
-                  <TableRow key={a.id}>
+                  <TableRow key={a.id} className="cursor-pointer hover:bg-muted/50" onClick={() => navigate(`/alerts/${a.id}`)}>
                     <TableCell><SeverityBadge severity={a.severity} /></TableCell>
                     <TableCell><MetricLabel metric={a.metric} /></TableCell>
                     <TableCell className="font-mono text-xs">{a.pkStart.toFixed(2)} - {a.pkEnd.toFixed(2)} km</TableCell>
