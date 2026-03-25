@@ -5,6 +5,7 @@ import { Dashboard } from '@/pages/Dashboard';
 import { Journeys } from '@/pages/Journeys';
 import { JourneyDetail } from '@/pages/JourneyDetail';
 import { Alerts } from '@/pages/Alerts';
+import { AlertDetail } from '@/pages/AlertDetail';
 import { Systems } from '@/pages/Systems';
 import { Thresholds } from '@/pages/Thresholds';
 import { useAuthStore } from '@/store/auth';
@@ -31,6 +32,7 @@ function App() {
           <Route path="/journeys" element={<Journeys />} />
           <Route path="/journeys/:id" element={<JourneyDetail />} />
           <Route path="/alerts" element={<Alerts />} />
+          <Route path="/alerts/:id" element={<AlertDetail />} />
           <Route path="/systems" element={<Systems />} />
           <Route path="/thresholds" element={<Thresholds />} />
         </Route>

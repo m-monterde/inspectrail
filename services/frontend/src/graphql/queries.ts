@@ -157,6 +157,39 @@ export const GET_ALERTS = gql`
   }
 `;
 
+export const GET_ALERT = gql`
+  query Alert($id: Int!) {
+    alert(id: $id) {
+      id
+      metric
+      severity
+      pkStart
+      pkEnd
+      latStart
+      lonStart
+      latEnd
+      lonEnd
+      measuredValue
+      thresholdValue
+      deviation
+      detectedAt
+      metadata
+      createdAt
+      journey {
+        id
+        name
+        startedAt
+        endedAt
+        status
+        system {
+          name
+          code
+        }
+      }
+    }
+  }
+`;
+
 export const GET_SENSOR_READINGS = gql`
   query SensorReadings($journeyId: Int!, $pkFrom: Float, $pkTo: Float, $resolution: Int) {
     sensorReadings(journeyId: $journeyId, pkFrom: $pkFrom, pkTo: $pkTo, resolution: $resolution) {

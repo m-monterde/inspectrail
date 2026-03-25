@@ -113,9 +113,9 @@ export function Dashboard() {
             </TableHeader>
             <TableBody>
               {stats.recentAlerts.map((alert: any) => (
-                <TableRow key={alert.id}>
-                  <TableCell><SeverityBadge severity={alert.severity} /></TableCell>
-                  <TableCell><MetricLabel metric={alert.metric} /></TableCell>
+                <TableRow key={alert.id} className="cursor-pointer">
+                  <TableCell><Link to={`/alerts/${alert.id}`}><SeverityBadge severity={alert.severity} /></Link></TableCell>
+                  <TableCell><Link to={`/alerts/${alert.id}`} className="hover:underline"><MetricLabel metric={alert.metric} /></Link></TableCell>
                   <TableCell>
                     <Link to={`/journeys/${alert.journey.id}`} className="hover:underline">
                       <code className="text-xs text-muted-foreground">{alert.journey.system.code}</code>
