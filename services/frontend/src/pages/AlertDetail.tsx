@@ -48,11 +48,10 @@ export function AlertDetail() {
     skip: !alert?.journey?.id,
   });
 
-  // También cargar la ruta completa para el mapa (con menos resolución)
+  // Ruta completa para el mapa
   const { data: fullRouteData } = useQuery<any>(GET_SENSOR_READINGS, {
     variables: {
       journeyId: alert?.journey?.id,
-      resolution: 60, // 1 punto por minuto aprox
     },
     skip: !alert?.journey?.id,
   });
