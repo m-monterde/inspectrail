@@ -36,13 +36,17 @@
 .dim { opacity: 0.5; }
 .vs { display: flex; gap: 20px; align-items: stretch; }
 .vs > div { flex: 1; }
+.adr-num { color: #fbbf24; font-weight: 700; margin-right: 6px; }
+.adr-index { font-size: 0.7em; text-align: left; max-width: 700px; margin: 0 auto; }
+.adr-index li { padding: 4px 0; border-bottom: 1px solid #1e293b; list-style: none; }
+.adr-index li span.done { color: #4ade80; } .adr-index li span.current { color: #60a5fa; font-weight:700; }
 </style>
 </head>
 <body>
 <div class="reveal">
 <div class="slides">
 
-<!-- 1. PORTADA -->
+<!-- ==================== PORTADA ==================== -->
 <section>
 <h1>InspectRail</h1>
 <h3>Plataforma de monitorización de infraestructura ferroviaria</h3>
@@ -51,7 +55,7 @@
 <p class="subtitle">Marzo 2026</p>
 </section>
 
-<!-- 2. EL PROBLEMA -->
+<!-- ==================== EL PROBLEMA ==================== -->
 <section>
 <h2>El problema</h2>
 <br>
@@ -64,87 +68,35 @@
 <p class="fragment">7 métricas simultáneas: nivelación, alineación, alabeo, ancho de vía, aceleración vertical/lateral, velocidad</p>
 </section>
 
-<!-- 3. ALCANCE -->
+<!-- ==================== INDICE ADRs ==================== -->
 <section>
-<h2>Alcance del prototipo</h2>
-<br>
-<div class="vs">
-<div class="box">
-<h3 style="color:#4ade80">Implementado</h3>
-<ul>
-<li>BD TimescaleDB + PostGIS</li>
-<li>API GraphQL (Node.js + Prisma)</li>
-<li>Frontend React + Mapas + Gráficas</li>
-<li>Auth JWT + RBAC</li>
-<li>CI/CD + Deploy HTTPS</li>
-<li>11.800 lecturas demo, 4 trayectos</li>
-</ul>
-</div>
-<div class="box">
-<h3 style="color:#fbbf24">Diseñado (no implementado)</h3>
-<ul>
-<li>Servicio de ingesta (Python)</li>
-<li>Servicio de análisis / ML</li>
-<li>Observabilidad (Prometheus+Grafana)</li>
-<li>Notificaciones SMS/email</li>
-<li>Modo on-premise</li>
-</ul>
-</div>
-</div>
-<br>
-<p class="fragment"><span class="highlight">Demo live:</span> https://inspectrail.duckdns.org</p>
-</section>
-
-<!-- 4. ARQUITECTURA -->
-<section>
-<h2>Arquitectura — 5 servicios</h2>
-<div style="display:flex; align-items:center; justify-content:center; gap:12px; flex-wrap:wrap; margin:20px 0;">
-  <div style="background:#1e293b; border:2px solid #94a3b8; border-radius:12px; padding:14px 18px; text-align:center; min-width:120px;">
-    <div style="font-size:1.4em;">&#x1F682;</div>
-    <div style="font-size:0.7em; color:#94a3b8; margin-top:4px;">Tren (sensores)</div>
-  </div>
-  <div style="color:#475569; font-size:1.2em;">&#x27A1;</div>
-  <div style="background:#713f12; border:2px solid #fbbf24; border-radius:12px; padding:14px 18px; text-align:center; min-width:120px;">
-    <div style="font-size:0.85em; font-weight:600; color:#fbbf24;">Ingesta</div>
-    <div style="font-size:0.6em; color:#d4a574; margin-top:2px;">Python + FastAPI</div>
-  </div>
-  <div style="color:#475569; font-size:1.2em;">&#x27A1;</div>
-  <div style="background:#1e3a5f; border:2px solid #60a5fa; border-radius:12px; padding:14px 22px; text-align:center; min-width:140px;">
-    <div style="font-size:0.85em; font-weight:600; color:#60a5fa;">Base de datos</div>
-    <div style="font-size:0.6em; color:#7cb3f0; margin-top:2px;">TimescaleDB + PostGIS</div>
-  </div>
-  <div style="color:#475569; font-size:1.2em;">&#x27A1;</div>
-  <div style="background:#713f12; border:2px solid #fbbf24; border-radius:12px; padding:14px 18px; text-align:center; min-width:120px;">
-    <div style="font-size:0.85em; font-weight:600; color:#fbbf24;">Análisis</div>
-    <div style="font-size:0.6em; color:#d4a574; margin-top:2px;">Python + NumPy</div>
-  </div>
-</div>
-<div style="display:flex; align-items:center; justify-content:center; gap:12px; margin:8px 0;">
-  <div style="color:#475569; font-size:0.7em; padding:4px 10px; border:1px dashed #475569; border-radius:6px;">pg_notify('new_alert')</div>
-  <div style="color:#475569; font-size:1.2em;">&#x2B07;</div>
-</div>
-<div style="display:flex; align-items:center; justify-content:center; gap:12px; margin:8px 0;">
-  <div style="background:#14532d; border:2px solid #4ade80; border-radius:12px; padding:14px 18px; text-align:center; min-width:140px;">
-    <div style="font-size:0.85em; font-weight:600; color:#4ade80;">API</div>
-    <div style="font-size:0.6em; color:#86efac; margin-top:2px;">Node.js + GraphQL</div>
-  </div>
-  <div style="color:#475569; font-size:1.2em;">&#x27A1;</div>
-  <div style="background:#1e3a5f; border:2px solid #60a5fa; border-radius:12px; padding:14px 18px; text-align:center; min-width:140px;">
-    <div style="font-size:0.85em; font-weight:600; color:#60a5fa;">Frontend</div>
-    <div style="font-size:0.6em; color:#7cb3f0; margin-top:2px;">React + MapLibre + ECharts</div>
-  </div>
-</div>
+<h2>Decisiones arquitectónicas</h2>
+<h3>12 ADRs — Problema → Opciones → Decisión</h3>
 <br>
 <div class="grid-2">
-<div class="box"><h3>ADR-002: Análisis independiente</h3><p>No dentro de la API. Escalado independiente. Evolución a ML sin tocar API ni frontend.</p></div>
-<div class="box"><h3>ADR-012: Monorepo</h3><p>Simplicidad para equipo pequeño. Cada servicio con Dockerfile y tests propios.</p></div>
+<ul class="adr-index">
+<li><span class="adr-num">ADR-001</span> Arquitectura de base de datos</li>
+<li><span class="adr-num">ADR-004</span> Multitenencia y modelo de datos</li>
+<li><span class="adr-num">ADR-002</span> Análisis como servicio independiente</li>
+<li><span class="adr-num">ADR-003</span> Lenguaje: Python para ingesta y análisis</li>
+<li><span class="adr-num">ADR-005</span> API: GraphQL vs REST</li>
+<li><span class="adr-num">ADR-007</span> ORM: Prisma + Prisma Migrate</li>
+</ul>
+<ul class="adr-index">
+<li><span class="adr-num">ADR-006</span> Comunicación: LISTEN/NOTIFY sin Redis</li>
+<li><span class="adr-num">ADR-008</span> Frontend: WebGL, mapas y gráficas</li>
+<li><span class="adr-num">ADR-009</span> DevOps: CI/CD y orquestación</li>
+<li><span class="adr-num">ADR-010</span> Demo: VPS Hetzner</li>
+<li><span class="adr-num">ADR-011</span> Estrategia de entornos</li>
+<li><span class="adr-num">ADR-012</span> Monorepo</li>
+</ul>
 </div>
 </section>
 
-<!-- 5. BD: POR QUÉ TIMESCALEDB -->
+<!-- ==================== ADR-001: BASE DE DATOS ==================== -->
 <section>
-<h2>Base de datos — ADR-001</h2>
-<h3>¿Por qué TimescaleDB?</h3>
+<h2><span class="adr-num">ADR-001</span> Base de datos</h2>
+<h3>Problema: almacenar datos relacionales + millones de lecturas time-series + geodatos</h3>
 <table>
 <tr><th></th><th>PostgreSQL</th><th>PG + TimescaleDB</th><th>InfluxDB</th></tr>
 <tr><td>Datos relacionales</td><td class="ok">✅</td><td class="ok">✅</td><td class="no">❌</td></tr>
@@ -155,14 +107,14 @@
 <tr><td>Infraestructura</td><td class="ok">1 motor</td><td class="ok">1 motor</td><td class="no">2 motores</td></tr>
 </table>
 <br>
-<p class="fragment"><span class="highlight">Decisión:</span> TimescaleDB = PostgreSQL + superpoderes para time-series. Un solo motor para todo.</p>
+<p class="fragment"><span class="highlight">Decisión:</span> PostgreSQL + TimescaleDB + PostGIS — un solo motor para todo</p>
 </section>
 
-<!-- 6. MODELO DE DATOS -->
+<!-- ==================== ADR-004: MODELO DE DATOS ==================== -->
 <section>
-<h2>Modelo de datos — ADR-004</h2>
+<h2><span class="adr-num">ADR-004</span> Modelo de datos</h2>
+<h3>Problema: multitenencia, RBAC, trayectos dinámicos, alertas como segmentos</h3>
 <div style="display:flex; gap:16px; justify-content:center; margin:12px 0; font-size:0.65em;">
-  <!-- RBAC -->
   <div style="display:flex; flex-direction:column; gap:6px; align-items:center;">
     <div style="font-size:0.8em; color:#4ade80; font-weight:600; margin-bottom:2px;">Autenticación y RBAC</div>
     <div style="background:#14532d; border:1px solid #4ade80; border-radius:8px; padding:8px 14px; text-align:left; min-width:150px;">
@@ -186,8 +138,6 @@
       </div>
     </div>
   </div>
-
-  <!-- ORGANIZATIONS (centro) -->
   <div style="display:flex; flex-direction:column; align-items:center; justify-content:center;">
     <div style="background:#1e3a5f; border:2px solid #60a5fa; border-radius:12px; padding:14px 20px; text-align:center; min-width:160px;">
       <div style="color:#60a5fa; font-weight:700; font-size:1.1em;">organizations</div>
@@ -201,8 +151,6 @@
       <div style="color:#94a3b8; font-size:0.75em;">warning / alert / critical</div>
     </div>
   </div>
-
-  <!-- Dispositivos y datos -->
   <div style="display:flex; flex-direction:column; gap:6px; align-items:center;">
     <div style="font-size:0.8em; color:#fbbf24; font-weight:600; margin-bottom:2px;">Dispositivos y trayectos</div>
     <div style="background:#713f12; border:1px solid #fbbf24; border-radius:8px; padding:8px 14px; text-align:left; min-width:170px;">
@@ -227,16 +175,40 @@
     </div>
   </div>
 </div>
-<div class="grid-3" style="margin-top:8px;">
-<div class="box"><h3>Multitenencia</h3><p>Todo filtrado por organizationId automáticamente</p></div>
-<div class="box"><h3>Trayectos dinámicos</h3><p>La ruta emerge de las lecturas, no está predefinida</p></div>
-<div class="box"><h3>Alertas como segmentos</h3><p>pk_start – pk_end con coordenadas GPS</p></div>
+<p class="fragment subtitle">Esquema completo: <a href="schema.html" target="_blank" style="color:#60a5fa;">/slides/schema.html</a></p>
+</section>
+
+<!-- ==================== ADR-002 + ADR-003: ANÁLISIS + PYTHON ==================== -->
+<section>
+<h2><span class="adr-num">ADR-002</span> Análisis independiente</h2>
+<h3>Problema: ¿dónde evaluar umbrales y detectar anomalías?</h3>
+<div class="vs">
+<div class="box">
+<h3 style="color:#f87171">Dentro de la API ❌</h3>
+<ul><li>Mezcla responsabilidades</li><li>Escalado acoplado</li><li>Difícil evolución a ML</li></ul>
+</div>
+<div class="box">
+<h3 style="color:#4ade80">Servicio independiente ✅</h3>
+<ul><li>Escalado independiente</li><li>Python: NumPy, SciPy, sklearn</li><li>Si falla, la ingesta sigue guardando</li><li>Evolución natural a ML</li></ul>
+</div>
+</div>
+<br>
+<div style="display:flex; align-items:center; justify-content:center; gap:12px; font-size:0.8em;">
+  <div class="pill pill-yellow">Ingesta (Python)</div>
+  <span style="color:#475569;">→</span>
+  <div class="pill pill-blue">BD</div>
+  <span style="color:#475569;">→</span>
+  <div class="pill pill-yellow">Análisis (Python)</div>
+  <span style="color:#475569;">→</span>
+  <div class="pill pill-green">API (Node.js)</div>
+  <span style="color:#475569;">→</span>
+  <div class="pill pill-blue">Frontend</div>
 </div>
 </section>
 
-<!-- 7. PYTHON PARA INGESTA+ANÁLISIS -->
 <section>
-<h2>¿Por qué Python? — ADR-003</h2>
+<h2><span class="adr-num">ADR-003</span> ¿Por qué Python?</h2>
+<h3>Problema: ¿un lenguaje o dos para ingesta + análisis?</h3>
 <table>
 <tr><th></th><th>Go + Python</th><th>Python solo</th></tr>
 <tr><td>Lenguajes en el equipo</td><td class="warn">2</td><td class="ok">1</td></tr>
@@ -247,12 +219,13 @@
 <tr><td>Código compartido</td><td class="no">❌</td><td class="ok">✅</td></tr>
 </table>
 <br>
-<p class="fragment"><span class="highlight">Decisión:</span> Python para ambos. Si ingesta necesita más rendimiento → migrar solo ingesta a Go (reversible)</p>
+<p class="fragment"><span class="highlight">Decisión:</span> Python para ambos. Si ingesta necesita más rendimiento → migrar solo ingesta a Go</p>
 </section>
 
-<!-- 8. GRAPHQL vs REST -->
+<!-- ==================== ADR-005 + ADR-007: API ==================== -->
 <section>
-<h2>API: GraphQL vs REST — ADR-005</h2>
+<h2><span class="adr-num">ADR-005</span> API: GraphQL vs REST</h2>
+<h3>Problema: el frontend tiene vistas muy diferentes (dashboard, mapa, listados, detalle)</h3>
 <div class="vs">
 <div class="box">
 <h3 style="color:#f87171">REST</h3>
@@ -261,7 +234,6 @@
 <li><strong>Over-fetching:</strong> campos innecesarios</li>
 <li><strong>Under-fetching:</strong> múltiples llamadas</li>
 <li>Real-time: WebSocket separado</li>
-<li>Los endpoints proliferan</li>
 </ul>
 </div>
 <div class="box">
@@ -270,8 +242,7 @@
 <li>Un endpoint, el cliente define qué pide</li>
 <li><strong>Datos exactos</strong> por cada vista</li>
 <li><strong>Una petición</strong> para datos relacionados</li>
-<li>Subscriptions nativas</li>
-<li>Schema tipado = contrato front↔back</li>
+<li>Subscriptions nativas para real-time</li>
 </ul>
 </div>
 </div>
@@ -279,105 +250,81 @@
 <p class="fragment"><span class="highlight">Decisión:</span> GraphQL + Node.js + TypeScript — alineado con el stack de InspectRail</p>
 </section>
 
-<!-- 9. ARQUITECTURA API -->
 <section>
-<h2>Arquitectura de la API</h2>
-<div style="display:flex; flex-direction:column; align-items:center; gap:0; margin:16px 0;">
-  <!-- Schema -->
+<h2><span class="adr-num">ADR-005</span> + <span class="adr-num">ADR-007</span> Arquitectura de la API</h2>
+<h3>Problema: ¿cómo organizar el código? ¿qué ORM?</h3>
+<div style="display:flex; flex-direction:column; align-items:center; gap:0; margin:12px 0;">
   <div style="display:flex; align-items:center; gap:16px; width:700px;">
-    <div style="background:#1e3a5f; border:2px solid #60a5fa; border-radius:12px; padding:12px 24px; text-align:center; flex:1;">
-      <div style="color:#60a5fa; font-weight:700; font-size:0.9em;">Schema .graphql</div>
-      <div style="color:#7cb3f0; font-size:0.65em;">Contrato del API — equivale a DTOs</div>
+    <div style="background:#1e3a5f; border:2px solid #60a5fa; border-radius:12px; padding:10px 24px; text-align:center; flex:1;">
+      <div style="color:#60a5fa; font-weight:700; font-size:0.85em;">Schema .graphql</div>
+      <div style="color:#7cb3f0; font-size:0.6em;">Contrato del API — equivale a DTOs</div>
     </div>
-    <div style="color:#94a3b8; font-size:0.65em; min-width:140px; text-align:left;">
-      <div>journey.graphql</div>
-      <div>alert.graphql</div>
-      <div>sensorReading.graphql</div>
-      <div style="color:#475569;">... 10 archivos</div>
-    </div>
+    <div style="color:#94a3b8; font-size:0.6em; min-width:130px; text-align:left;">10 archivos .graphql</div>
   </div>
-  <div style="color:#475569; font-size:1.2em; margin:4px 0;">&#x2B07;</div>
-  <!-- Resolvers -->
+  <div style="color:#475569; font-size:1em; margin:2px 0;">↓</div>
   <div style="display:flex; align-items:center; gap:16px; width:700px;">
-    <div style="background:#14532d; border:2px solid #4ade80; border-radius:12px; padding:12px 24px; text-align:center; flex:1;">
-      <div style="color:#4ade80; font-weight:700; font-size:0.9em;">Resolvers</div>
-      <div style="color:#86efac; font-size:0.65em;">Como Controllers — delegan a services</div>
+    <div style="background:#14532d; border:2px solid #4ade80; border-radius:12px; padding:10px 24px; text-align:center; flex:1;">
+      <div style="color:#4ade80; font-weight:700; font-size:0.85em;">Resolvers</div>
+      <div style="color:#86efac; font-size:0.6em;">Como Controllers — delegan a services</div>
     </div>
-    <div style="color:#94a3b8; font-size:0.65em; min-width:140px; text-align:left;">
-      <div>journey.resolver.ts</div>
-      <div>alert.resolver.ts</div>
-      <div>auth.resolver.ts</div>
-      <div style="color:#475569;">... 9 resolvers</div>
-    </div>
+    <div style="color:#94a3b8; font-size:0.6em; min-width:130px; text-align:left;">9 resolvers</div>
   </div>
-  <div style="color:#475569; font-size:1.2em; margin:4px 0;">&#x2B07;</div>
-  <!-- Services -->
+  <div style="color:#475569; font-size:1em; margin:2px 0;">↓</div>
   <div style="display:flex; align-items:center; gap:16px; width:700px;">
-    <div style="background:#713f12; border:2px solid #fbbf24; border-radius:12px; padding:12px 24px; text-align:center; flex:1;">
-      <div style="color:#fbbf24; font-weight:700; font-size:0.9em;">Services</div>
-      <div style="color:#d4a574; font-size:0.65em;">Logica de negocio — filtros, paginacion, RBAC</div>
+    <div style="background:#713f12; border:2px solid #fbbf24; border-radius:12px; padding:10px 24px; text-align:center; flex:1;">
+      <div style="color:#fbbf24; font-weight:700; font-size:0.85em;">Services</div>
+      <div style="color:#d4a574; font-size:0.6em;">Logica de negocio — filtros, paginacion, RBAC</div>
     </div>
-    <div style="color:#94a3b8; font-size:0.65em; min-width:140px; text-align:left;">
-      <div>journey.service.ts</div>
-      <div>alert.service.ts</div>
-      <div>auth.service.ts</div>
-      <div style="color:#475569;">... 5 services</div>
-    </div>
+    <div style="color:#94a3b8; font-size:0.6em; min-width:130px; text-align:left;">5 services</div>
   </div>
-  <div style="color:#475569; font-size:1.2em; margin:4px 0;">&#x2B07;</div>
-  <!-- Prisma -->
+  <div style="color:#475569; font-size:1em; margin:2px 0;">↓</div>
   <div style="display:flex; align-items:center; gap:16px; width:700px;">
-    <div style="background:#4a1d6a; border:2px solid #c084fc; border-radius:12px; padding:12px 24px; text-align:center; flex:1;">
-      <div style="color:#c084fc; font-weight:700; font-size:0.9em;">Prisma ORM</div>
-      <div style="color:#d8b4fe; font-size:0.65em;">Acceso type-safe a PostgreSQL + TimescaleDB</div>
+    <div style="background:#4a1d6a; border:2px solid #c084fc; border-radius:12px; padding:10px 24px; text-align:center; flex:1;">
+      <div style="color:#c084fc; font-weight:700; font-size:0.85em;">Prisma ORM</div>
+      <div style="color:#d8b4fe; font-size:0.6em;">Type-safe → PostgreSQL + TimescaleDB</div>
     </div>
-    <div style="color:#94a3b8; font-size:0.65em; min-width:140px; text-align:left;">
-      <div>schema.prisma</div>
-      <div style="color:#475569;">Type-safe queries</div>
-      <div style="color:#475569;">Migrations</div>
-    </div>
+    <div style="color:#94a3b8; font-size:0.6em; min-width:130px; text-align:left;">schema.prisma</div>
   </div>
 </div>
-<!-- Alternativas -->
-<div style="display:flex; gap:12px; justify-content:center; margin-top:12px;">
-  <div style="background:#7f1d1d; border:1px solid #f87171; border-radius:8px; padding:8px 16px; text-align:center;">
-    <div style="color:#f87171; font-weight:600; font-size:0.75em;">NestJS ❌</div>
-    <div style="color:#fca5a5; font-size:0.6em;">Over-engineering</div>
+<div style="display:flex; gap:12px; justify-content:center; margin-top:8px;">
+  <div style="background:#7f1d1d; border:1px solid #f87171; border-radius:8px; padding:6px 14px; text-align:center;">
+    <div style="color:#f87171; font-size:0.7em;">NestJS ❌ <span class="dim">over-engineering</span></div>
   </div>
-  <div style="background:#14532d; border:2px solid #4ade80; border-radius:8px; padding:8px 16px; text-align:center;">
-    <div style="color:#4ade80; font-weight:600; font-size:0.75em;">Schema-first + Services ✅</div>
-    <div style="color:#86efac; font-size:0.6em;">Separacion clara</div>
+  <div style="background:#14532d; border:2px solid #4ade80; border-radius:8px; padding:6px 14px; text-align:center;">
+    <div style="color:#4ade80; font-size:0.7em;">Schema-first + Services ✅</div>
   </div>
-  <div style="background:#7f1d1d; border:1px solid #f87171; border-radius:8px; padding:8px 16px; text-align:center;">
-    <div style="color:#f87171; font-weight:600; font-size:0.75em;">Resolvers→Prisma ❌</div>
-    <div style="color:#fca5a5; font-size:0.6em;">Mezcla responsabilidades</div>
+  <div style="background:#7f1d1d; border:1px solid #f87171; border-radius:8px; padding:6px 14px; text-align:center;">
+    <div style="color:#f87171; font-size:0.7em;">Resolvers→Prisma ❌ <span class="dim">mezcla lógica</span></div>
   </div>
 </div>
-<p class="fragment subtitle" style="margin-top:10px;">ADR-007: Prisma sobre TypeORM (config compleja), Drizzle (inmaduro), Knex (sin type-safety)</p>
+<p class="fragment subtitle" style="margin-top:6px;">Prisma sobre TypeORM (config compleja), Drizzle (inmaduro), Knex (sin type-safety)</p>
 </section>
 
-<!-- 10. SEGURIDAD -->
+<!-- ==================== ADR-006: LISTEN/NOTIFY ==================== -->
 <section>
-<h2>Seguridad</h2>
-<div class="grid-2">
-<div class="box"><h3>Autenticación — JWT</h3>
-<ul><li>HS256, expira en 24h</li><li>Stateless: no sesiones en servidor</li><li>Passwords: bcrypt (coste 10)</li><li class="dim">Descartado: sesiones (requiere Redis), OAuth2 (sobredimensionado)</li></ul>
-</div>
-<div class="box"><h3>Autorización — RBAC</h3>
-<ul><li>5 tablas: users→roles→permissions</li><li>10 permisos granulares</li><li>Nuevo rol = config en BD, sin tocar código</li><li class="dim">Descartado: check de rol directo (rígido), ABAC (overkill)</li></ul>
-</div>
-<div class="box"><h3>Multitenencia</h3>
-<ul><li>Filtrado automático por organizationId</li><li>Org A nunca ve datos de Org B</li><li>Dispositivos: api_key + api_secret (bcrypt)</li></ul>
-</div>
-<div class="box"><h3>Transporte</h3>
-<ul><li>HTTPS con Let's Encrypt (auto-renovación)</li><li>BD y API: solo red interna Docker</li><li>.env con secretos fuera del repo</li></ul>
-</div>
+<h2><span class="adr-num">ADR-006</span> Alertas en vivo</h2>
+<h3>Problema: notificar al frontend cuando el análisis detecta una anomalía</h3>
+<table>
+<tr><th></th><th>Redis Pub/Sub</th><th>RabbitMQ</th><th>PG LISTEN/NOTIFY</th></tr>
+<tr><td>Infra extra</td><td class="no">✅ servidor Redis</td><td class="no">✅ broker</td><td class="ok">❌ ya tenemos PG</td></tr>
+<tr><td>Latencia</td><td class="ok">~1ms</td><td class="warn">~10ms</td><td class="ok">~1ms</td></tr>
+<tr><td>Persistencia</td><td class="no">❌</td><td class="ok">✅</td><td class="ok">Vía BD</td></tr>
+<tr><td>Complejidad</td><td class="warn">Media</td><td class="no">Alta</td><td class="ok">Baja</td></tr>
+</table>
+<br>
+<div class="mono" style="font-size:0.55em; text-align:center;">
+Análisis (Python)                           API (Node.js)
+     │                                         │
+     │  INSERT alert + pg_notify('new_alert')  │  LISTEN new_alert
+     ├──────── PostgreSQL LISTEN/NOTIFY ──────→│
+     │         <span class="dim">(latencia ~1ms, sin Redis)</span>     │  → GraphQL Subscription → Frontend
 </div>
 </section>
 
-<!-- 11. POR QUÉ WEBGL -->
+<!-- ==================== ADR-008: FRONTEND + WEBGL ==================== -->
 <section>
-<h2>Frontend: ¿Por qué WebGL? — ADR-008</h2>
+<h2><span class="adr-num">ADR-008</span> Frontend: ¿por qué WebGL?</h2>
+<h3>Problema: 500.000 puntos en mapa y gráficas</h3>
 <br>
 <table>
 <tr><th>Puntos de dato</th><th>SVG / DOM</th><th>WebGL / Canvas</th></tr>
@@ -388,31 +335,30 @@
 <br>
 <div class="grid-2">
 <div class="box"><h3 style="color:#f87171">SVG/DOM (Leaflet, Recharts)</h3><p>Cada punto = un elemento HTML. El navegador crea, posiciona y repinta TODOS en cada frame</p></div>
-<div class="box"><h3 style="color:#4ade80">WebGL (MapLibre, ECharts)</h3><p>Todos los puntos → GPU (tarjeta gráfica). Renderizado en paralelo. Misma tecnología que los videojuegos</p></div>
+<div class="box"><h3 style="color:#4ade80">WebGL (MapLibre, ECharts)</h3><p>Todos los puntos → GPU (tarjeta gráfica). Renderizado en paralelo. Misma tecnología que videojuegos</p></div>
 </div>
-<br>
-<p class="fragment big">Un trayecto de 50km a 10cm = 500.000 puntos. <span class="highlight">WebGL no es opcional.</span></p>
+<p class="fragment big" style="margin-top:12px;">WebGL no es opcional — <span class="highlight">es un requisito.</span></p>
 </section>
 
-<!-- 12. MAPAS: LEAFLET vs MAPLIBRE -->
 <section>
-<h2>Mapas: Leaflet vs MapLibre — ADR-008</h2>
+<h2><span class="adr-num">ADR-008</span> Mapas: Leaflet vs MapLibre</h2>
+<h3>Problema: motor de mapas para datos densos + modo on-premise</h3>
 <table>
 <tr><th></th><th>Leaflet</th><th>MapLibre GL</th><th>Mapbox GL v2</th></tr>
 <tr><td>Renderizado</td><td class="no">SVG/DOM</td><td class="ok">WebGL</td><td class="ok">WebGL</td></tr>
 <tr><td>Datos densos</td><td class="no">❌ >10K crash</td><td class="ok">✅ millones</td><td class="ok">✅ millones</td></tr>
 <tr><td>Licencia</td><td class="ok">Open</td><td class="ok">Open (BSD)</td><td class="no">Propietaria</td></tr>
 <tr><td>Coste</td><td class="ok">Gratis</td><td class="ok">Gratis</td><td class="no">De pago</td></tr>
-<tr><td>Tiles locales</td><td class="warn">Limitado</td><td class="ok">✅ PMTiles</td><td class="no">❌</td></tr>
-<tr><td>On-premise</td><td class="warn">Difícil</td><td class="ok">✅ Perfecto</td><td class="no">❌</td></tr>
+<tr><td>Tiles locales (PMTiles)</td><td class="warn">Limitado</td><td class="ok">✅</td><td class="no">❌</td></tr>
+<tr><td>On-premise sin internet</td><td class="warn">Difícil</td><td class="ok">✅ Perfecto</td><td class="no">❌</td></tr>
 </table>
 <br>
 <p class="fragment"><span class="highlight">Decisión:</span> MapLibre GL JS — WebGL + open-source + tiles locales para on-premise</p>
 </section>
 
-<!-- 13. GRÁFICAS: SVG vs CANVAS -->
 <section>
-<h2>Gráficas: SVG vs Canvas — ADR-008</h2>
+<h2><span class="adr-num">ADR-008</span> Gráficas: SVG vs Canvas</h2>
+<h3>Problema: gráficas de sensores con zoom interactivo</h3>
 <table>
 <tr><th></th><th>Recharts</th><th>Chart.js</th><th>Apache ECharts</th></tr>
 <tr><td>Renderizado</td><td class="no">SVG</td><td class="warn">Canvas</td><td class="ok">Canvas + WebGL</td></tr>
@@ -420,18 +366,17 @@
 <tr><td>Downsampling auto</td><td class="no">❌</td><td class="no">❌</td><td class="ok">✅</td></tr>
 <tr><td>Zoom/Pan nativo</td><td class="no">❌</td><td class="warn">⚠️ plugin</td><td class="ok">✅</td></tr>
 <tr><td>Líneas de umbral</td><td class="no">❌</td><td class="warn">⚠️</td><td class="ok">✅ markLine</td></tr>
-<tr><td>Complejidad</td><td class="ok">Simple</td><td class="ok">Simple</td><td class="warn">Media</td></tr>
 </table>
 <br>
 <p class="fragment"><span class="highlight">Decisión:</span> Apache ECharts — Canvas + downsampling automático + zoom nativo</p>
 </section>
 
-<!-- 14. TÉCNICAS DE RENDIMIENTO -->
 <section>
-<h2>Rendimiento en el frontend</h2>
+<h2><span class="adr-num">ADR-008</span> Rendimiento frontend</h2>
+<h3>Técnicas implementadas</h3>
 <div class="vs">
 <div class="box">
-<h3>Downsampling por zoom</h3>
+<h3>Downsampling por zoom en mapa</h3>
 <table style="font-size:0.9em;">
 <tr><th>Zoom</th><th>Puntos</th><th>Factor</th></tr>
 <tr><td>7-9</td><td>500</td><td>1/20</td></tr>
@@ -439,44 +384,24 @@
 <tr><td>12-13</td><td>3.333</td><td>1/3</td></tr>
 <tr><td>14+</td><td class="highlight">10.000</td><td>todos</td></tr>
 </table>
-<p style="font-size:0.7em;color:#94a3b8;">A zoom bajo no hay píxeles para 10K puntos. Se muestran menos sin perder información visual.</p>
+<p style="font-size:0.7em;color:#94a3b8;">A zoom bajo no hay píxeles para 10K puntos</p>
 </div>
 <div class="box">
-<h3>Coloración por métrica</h3>
-<p>Todos los valores de todas las métricas se precalculan en el GeoJSON una sola vez</p>
+<h3>Coloración por métrica en GPU</h3>
+<p>Todos los valores precalculados en GeoJSON (una vez)</p>
 <br>
-<p>Cambiar de métrica = cambiar una <span class="highlight">expression de MapLibre</span></p>
+<p>Cambiar métrica = cambiar <span class="highlight">expression de MapLibre</span></p>
 <br>
 <p class="ok" style="font-size:1.2em;">→ Instantáneo (GPU)</p>
-<p style="font-size:0.7em;color:#94a3b8;">Sin regenerar geometría ni recalcular</p>
+<p style="font-size:0.7em;color:#94a3b8;">Sin regenerar geometría</p>
 </div>
 </div>
 </section>
 
-<!-- 15. LISTEN/NOTIFY -->
+<!-- ==================== ADR-009/010/011: DEVOPS ==================== -->
 <section>
-<h2>Alertas en vivo sin Redis — ADR-006</h2>
-<table>
-<tr><th></th><th>Redis Pub/Sub</th><th>RabbitMQ</th><th>PG LISTEN/NOTIFY</th></tr>
-<tr><td>Infra extra</td><td class="no">✅ servidor Redis</td><td class="no">✅ broker</td><td class="ok">❌ ya tenemos PG</td></tr>
-<tr><td>Latencia</td><td class="ok">~1ms</td><td class="warn">~10ms</td><td class="ok">~1ms</td></tr>
-<tr><td>Persistencia</td><td class="no">❌</td><td class="ok">✅</td><td class="ok">Vía BD</td></tr>
-<tr><td>Complejidad</td><td class="warn">Media</td><td class="no">Alta</td><td class="ok">Baja</td></tr>
-</table>
-<br>
-<div class="mono" style="font-size:0.6em; text-align:center;">
-Análisis (Python)                           API (Node.js)
-     │                                         │
-     │  INSERT alert + pg_notify('new_alert')  │  LISTEN new_alert
-     ├──────── PostgreSQL LISTEN/NOTIFY ──────→│
-     │         <span class="dim">(latencia ~1ms, sin Redis)</span>     │  → GraphQL Subscription
-     │                                         ├──→ Frontend (WebSocket)
-</div>
-</section>
-
-<!-- 16. DEVOPS -->
-<section>
-<h2>DevOps — ADR-009</h2>
+<h2><span class="adr-num">ADR-009</span> DevOps y CI/CD</h2>
+<h3>Problema: cómo construir, testear y desplegar</h3>
 <div class="mono" style="font-size:0.65em; text-align:center;">
 push a main  →  <span class="pill pill-blue">CI</span> (lint + typecheck)
 push tag v*  →  <span class="pill pill-yellow">Build Docker</span> → <span class="pill pill-green">ghcr.io</span> → <span class="pill pill-blue">Deploy SSH</span> → docker compose up
@@ -498,69 +423,81 @@ push tag v*  →  <span class="pill pill-yellow">Build Docker</span> → <span c
 </table>
 </div>
 </div>
-<br>
-<p class="fragment subtitle">Imágenes tagueadas con semver: <code>ghcr.io/m-monterde/inspectrail-api:0.1.0</code></p>
+<p class="fragment subtitle">ADR-012: Monorepo — cada servicio con Dockerfile y tests, un solo repo</p>
 </section>
 
-<!-- 17. TRAEFIK -->
 <section>
-<h2>Proxy: Traefik vs Nginx</h2>
-<table>
+<h2><span class="adr-num">ADR-010</span> + <span class="adr-num">ADR-011</span> Deploy</h2>
+<h3>Problema: dónde y cómo desplegar la demo</h3>
+<div style="display:flex; flex-direction:column; align-items:center; gap:4px; margin:16px 0; font-size:0.8em;">
+  <div style="display:flex; align-items:center; gap:10px;">
+    <span style="color:#94a3b8;">Internet</span> → <span style="color:#94a3b8;">:443</span> →
+    <div class="pill pill-green">Traefik (HTTPS)</div> →
+    <div class="pill pill-blue">Frontend (Nginx)</div>
+  </div>
+  <div style="color:#475569; margin-left:200px;">↓ /graphql</div>
+  <div style="display:flex; align-items:center; gap:10px; margin-left:200px;">
+    <div class="pill pill-yellow">API (Node.js)</div> →
+    <div class="pill pill-red">TimescaleDB</div>
+  </div>
+</div>
+<div class="grid-2" style="margin-top:12px;">
+<div>
+<table style="font-size:0.85em;">
 <tr><th></th><th>Traefik</th><th>Nginx</th></tr>
-<tr><td>Service discovery</td><td class="ok">Auto (labels Docker)</td><td class="no">Config manual</td></tr>
-<tr><td>HTTPS Let's Encrypt</td><td class="ok">Integrado</td><td class="no">Certbot externo</td></tr>
-<tr><td>Añadir servicio</td><td class="ok">Solo un label</td><td class="warn">Editar conf + reload</td></tr>
-<tr><td>Ideal para</td><td class="highlight">SaaS (dinámico)</td><td class="highlight">On-premise (estático)</td></tr>
+<tr><td>Discovery</td><td class="ok">Auto (labels)</td><td class="no">Manual</td></tr>
+<tr><td>HTTPS</td><td class="ok">Let's Encrypt</td><td class="no">Certbot</td></tr>
+<tr><td>Ideal para</td><td class="highlight">SaaS</td><td class="highlight">On-premise</td></tr>
 </table>
-<br>
-<p class="fragment"><span class="highlight">Decisión:</span> Traefik para SaaS (auto-discovery + HTTPS), Nginx para on-premise (sin internet)</p>
+</div>
+<div class="box" style="text-align:center;">
+<h3>Infra demo</h3>
+<p>VPS Hetzner + DuckDNS + Let's Encrypt</p>
+<p>4 contenedores: db, api, frontend, proxy</p>
+<p style="color:#60a5fa; margin-top:6px;">inspectrail.duckdns.org</p>
+</div>
+</div>
 </section>
 
-<!-- 18. ARQUITECTURA DE DEPLOY -->
+<!-- ==================== SEGURIDAD ==================== -->
 <section>
-<h2>Deploy — Arquitectura</h2>
-<div class="mono" style="font-size:0.65em; text-align:center;">
-Internet → :443 → <span class="pill pill-green">Traefik</span> (HTTPS)
-                       │
-                       ↓
-               <span class="pill pill-blue">Frontend</span> (Nginx)
-                       │
-                  /graphql
-                       ↓
-                 <span class="pill pill-yellow">API</span> (Node.js)
-                       │
-                       ↓
-              <span class="pill pill-red">TimescaleDB</span>
+<h2>Seguridad</h2>
+<div class="grid-2">
+<div class="box"><h3>Autenticación — JWT</h3>
+<ul><li>HS256, expira en 24h</li><li>Stateless: no sesiones en servidor</li><li>Passwords: bcrypt (coste 10)</li><li class="dim">Descartado: sesiones (Redis), OAuth2 (overkill)</li></ul>
 </div>
-<br>
-<div class="grid-4">
-<div class="box" style="text-align:center;"><h3>VPS</h3><p>Hetzner<br>204.168.173.222</p></div>
-<div class="box" style="text-align:center;"><h3>Dominio</h3><p>DuckDNS<br>(gratuito)</p></div>
-<div class="box" style="text-align:center;"><h3>HTTPS</h3><p>Let's Encrypt<br>(auto-renovación)</p></div>
-<div class="box" style="text-align:center;"><h3>Imágenes</h3><p>ghcr.io<br>(públicas)</p></div>
+<div class="box"><h3>Autorización — RBAC</h3>
+<ul><li>5 tablas: users→roles→permissions</li><li>10 permisos granulares</li><li>Nuevo rol = config en BD, sin tocar código</li><li class="dim">Descartado: check directo (rígido), ABAC (overkill)</li></ul>
+</div>
+<div class="box"><h3>Multitenencia</h3>
+<ul><li>Filtrado automático por organizationId</li><li>Org A nunca ve datos de Org B</li><li>Dispositivos: api_key + api_secret (bcrypt)</li></ul>
+</div>
+<div class="box"><h3>Transporte</h3>
+<ul><li>HTTPS con Let's Encrypt (auto-renovación)</li><li>BD y API: solo red interna Docker</li><li>.env con secretos fuera del repo</li></ul>
+</div>
 </div>
 </section>
 
-<!-- 19. EVOLUCIÓN -->
+<!-- ==================== EVOLUCIÓN ==================== -->
 <section>
 <h2>Evolución y escalabilidad</h2>
 <div class="grid-2">
 <div class="box"><h3>Escalado de datos</h3>
-<ul><li>Compresión TimescaleDB ~95%</li><li>Continuous aggregates</li><li>Downsampling en API (time_bucket)</li><li>Downsampling en frontend (por zoom)</li></ul>
+<ul><li>Compresión TimescaleDB ~95%</li><li>Continuous aggregates</li><li>Downsampling API (time_bucket) + frontend (zoom)</li></ul>
 </div>
 <div class="box"><h3>Machine Learning</h3>
 <ul><li>Python preparado (NumPy/SciPy/sklearn)</li><li>De umbrales estáticos → modelos predictivos</li><li>Servicio independiente: evoluciona sin tocar API</li></ul>
 </div>
 <div class="box"><h3>On-premise</h3>
-<ul><li>Docker save → tar → hardware sin internet</li><li>PMTiles: mapas locales</li><li>Nginx reemplaza Traefik</li><li>Sincronización al conectar</li></ul>
+<ul><li>Docker save → tar → hardware sin internet</li><li>PMTiles: mapas locales</li><li>Nginx reemplaza Traefik</li></ul>
 </div>
 <div class="box"><h3>Observabilidad</h3>
-<ul><li>Prometheus + Grafana + Loki</li><li>Diseñado, a 1 docker-compose de distancia</li><li>No implementado: prioridad en funcionalidad core</li></ul>
+<ul><li>Prometheus + Grafana + Loki</li><li>Diseñado, a 1 docker-compose de distancia</li><li>No implementado: prioridad en core</li></ul>
 </div>
 </div>
 </section>
 
-<!-- 20. DEMO -->
+<!-- ==================== DEMO ==================== -->
 <section>
 <h2>Demo en vivo</h2>
 <br>
@@ -576,14 +513,14 @@ Login → Dashboard → Trayecto → Mapa coloreado → Gráficas con zoom → A
 </div>
 </section>
 
-<!-- 21. CIERRE -->
+<!-- ==================== CIERRE ==================== -->
 <section>
 <h1>InspectRail</h1>
 <br>
 <div class="grid-3">
 <div class="box" style="text-align:center;"><h3>Repositorio</h3><p>github.com/m-monterde/inspectrail</p></div>
 <div class="box" style="text-align:center;"><h3>Demo</h3><p>inspectrail.duckdns.org</p></div>
-<div class="box" style="text-align:center;"><h3>Documentación</h3><p>12 ADRs + READMEs por servicio</p></div>
+<div class="box" style="text-align:center;"><h3>Documentación</h3><p>12 ADRs + 9 apartados técnicos</p></div>
 </div>
 <br><br>
 <p class="subtitle">Mario Monterde — mariomontom@gmail.com</p>
